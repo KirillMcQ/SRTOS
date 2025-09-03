@@ -1,10 +1,11 @@
 #include "config.h"
 #include "task.h"
 
+// TODO: Define these in another file, probably task.c, so the user doesn't need to.
 uint32_t task1Stack[STACK_SIZE];
 uint32_t task2Stack[STACK_SIZE];
 
-// Tasks
+// Blinking LED tasks
 void task1_blueLED() {
 	static uint32_t nextBlink = 0;
 	for (;;) {

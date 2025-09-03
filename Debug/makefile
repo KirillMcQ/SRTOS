@@ -59,8 +59,8 @@ all: main-build
 main-build: practingRTOS.elf secondary-outputs
 
 # Tool invocations
-practingRTOS.elf practingRTOS.map: $(OBJS) $(USER_OBJS) /Users/kirillmcquillin/STM32CubeIDE/workspace_1.18.1/practingRTOS/STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "practingRTOS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/kirillmcquillin/STM32CubeIDE/workspace_1.18.1/practingRTOS/STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="practingRTOS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+practingRTOS.elf practingRTOS.map: $(OBJS) $(USER_OBJS) /Users/kirillmcquillin/git/SRTOS/STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "practingRTOS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/kirillmcquillin/git/SRTOS/STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="practingRTOS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
