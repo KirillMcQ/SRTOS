@@ -61,7 +61,7 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
 	new->taskTCB = taskTCB;
 	new->next = NULL;
 	cur->next = new;
-	prvAddTaskNodeToReadyList(new);
+	// prvAddTaskNodeToReadyList(new);
 }
 
 void SysTick_Handler()
