@@ -1,0 +1,37 @@
+# STM32CubeIDE / Eclipse
+.settings/
+.metadata/
+.vscode/
+*.launch
+
+# Build outputs
+Debug/
+Release/
+build/
+out/
+*.o
+*.d
+*.elf
+*.map
+*.bin
+*.hex
+*.list
+*.srec
+
+# CubeMX-generated build intermediates
+*.ioc-backup
+MX_tmp/
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# Logs / temporary
+*.log
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Generated core dumps
+core
