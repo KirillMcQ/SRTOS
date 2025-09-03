@@ -10,17 +10,18 @@
 #define ICSR *((volatile uint32_t *)(0xE000ED04))
 #define STACK_SIZE 128
 
-typedef struct {
+typedef struct
+{
 	uint32_t *sp;
-	unsigned int priority;
+	uint32_t priority;
 	uint32_t id;
 } TCB;
 
-typedef struct {
+typedef struct
+{
 	TCB *taskTCB;
 	struct TaskNode *next;
 } TaskNode;
-
 
 extern volatile uint32_t msTicks;
 extern TaskNode *readyTasks;

@@ -15,7 +15,6 @@
 #define SYSTICK_RELOAD *((volatile uint32_t *)(0xE000E014))
 #define SYSTICK_CURRENT *((volatile uint32_t *)(0xE000E018))
 
-
 void configureClock();
 void configureBlueLED();
 void configureGreenLED();
