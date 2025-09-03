@@ -1,9 +1,9 @@
 ../Src/task.c:11:11:initTaskStackFrame	1
-../Src/task.c:32:6:createTask	4
-../Src/task.c:61:6:SysTick_Handler	1
-../Src/task.c:65:6:PendSV_Handler	2
-../Src/task.c:108:6:SVC_Handler	1
-../Src/task.c:123:6:startScheduler	1
-../Src/task.c:127:6:setPendSVPending	1
-../Src/task.c:131:6:taskYield	1
-../Src/task.c:135:13:prvAddTaskNodeToReadyList	5
+../Src/task.c:33:6:createTask	3
+../Src/task.c:69:6:SysTick_Handler	1
+../Src/task.c:74:6:PendSV_Handler	2
+../Src/task.c:116:6:SVC_Handler	1
+../Src/task.c:131:6:startScheduler	1
+../Src/task.c:136:6:setPendSVPending	1
+../Src/task.c:141:6:taskYield	1
+../Src/task.c:147:13:prvAddTaskNodeToReadyList	5

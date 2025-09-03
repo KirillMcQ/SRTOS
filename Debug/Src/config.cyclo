@@ -1,6 +1,6 @@
 ../Src/config.c:4:6:configureClock	3
-../Src/config.c:14:6:configureBlueLED	1
-../Src/config.c:23:6:configureGreenLED	1
-../Src/config.c:31:6:configureOrangeLED	1
-../Src/config.c:38:6:configureSystickInterrupts	1
-../Src/config.c:47:6:configureAll	1
+../Src/config.c:17:6:configureBlueLED	1
+../Src/config.c:27:6:configureGreenLED	1
+../Src/config.c:36:6:configureOrangeLED	1
+../Src/config.c:44:6:configureSystickInterrupts	1
+../Src/config.c:54:6:configureAll	1

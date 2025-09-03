@@ -25,7 +25,7 @@ typedef struct
 
 extern volatile uint32_t msTicks;
 extern TaskNode *readyTasks;
-extern TaskNode tasks;
+extern TaskNode *tasks;
 extern TaskNode *curTask;
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void));

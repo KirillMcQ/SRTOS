@@ -43,8 +43,10 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
 	if (tasks == NULL)
 	{
 		// This is the first task, so this is where we will start
-		tasks->taskTCB = taskTCB;
-		tasks->next = NULL;
+		TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
+		new->taskTCB = taskTCB;
+		new->next = NULL;
+		tasks = new;
 		curTask = tasks;
 		return;
 	}
