@@ -9,6 +9,7 @@
 #define GPIOD_ODR *((volatile uint32_t *)(GPIOD_START_ADDR + 0x14))
 #define ICSR *((volatile uint32_t *)(0xE000ED04))
 #define STACK_SIZE 128
+#define MAX_PRIORITIES 2 // For now, only 2 priorities: 0 and 1
 
 typedef struct
 {
@@ -24,9 +25,9 @@ typedef struct
 } TaskNode;
 
 extern volatile uint32_t msTicks;
-extern TaskNode *readyTasks;
 extern TaskNode *tasks;
 extern TaskNode *curTask;
+extern TaskNode *readyTasksList[MAX_PRIORITIES]; // Every element represents the head of a Linked List for that priority level
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void));
 void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int);

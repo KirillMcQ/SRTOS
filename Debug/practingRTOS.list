@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00002050  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00000765  00000000  00000000  00002080  2**0
+ 12 .debug_info   00000759  00000000  00000000  00002080  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 0000042d  00000000  00000000  000027e5  2**0
+ 13 .debug_abbrev 0000043f  00000000  00000000  000027d9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  14 .debug_aranges 00000120  00000000  00000000  00002c18  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000000c2  00000000  00000000  00002d38  2**0
+ 15 .debug_rnglists 000000c1  00000000  00000000  00002d38  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0000207b  00000000  00000000  00002dfa  2**0
+ 16 .debug_macro  00002081  00000000  00000000  00002df9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00001817  00000000  00000000  00004e75  2**0
+ 17 .debug_line   000017b9  00000000  00000000  00004e7a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00007ad0  00000000  00000000  0000668c  2**0
+ 18 .debug_str    00007ae5  00000000  00000000  00006633  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  0000e15c  2**0
+ 19 .comment      00000043  00000000  00000000  0000e118  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00000600  00000000  00000000  0000e1a0  2**2
+ 20 .debug_frame  00000600  00000000  00000000  0000e15c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000004a  00000000  00000000  0000e7a0  2**0
+ 21 .debug_line_str 0000004a  00000000  00000000  0000e75c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -504,7 +504,7 @@ void *_sbrk(ptrdiff_t incr)
  8000474:	200005d0 	.word	0x200005d0
 
 08000478 <initTaskStackFrame>:
-static uint32_t curTaskIDNum = 0;
+TaskNode *readyTasksList[MAX_PRIORITIES] = { NULL }; // All NULL initially
 
 static void prvAddTaskNodeToReadyList(TaskNode *task);
 
@@ -676,6 +676,7 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
  800059e:	681b      	ldr	r3, [r3, #0]
  80005a0:	4a11      	ldr	r2, [pc, #68]	@ (80005e8 <createTask+0xac>)
  80005a2:	6013      	str	r3, [r2, #0]
+		// prvAddTaskNodeToReadyList(new);
 		return;
  80005a4:	e018      	b.n	80005d8 <createTask+0x9c>
 	}

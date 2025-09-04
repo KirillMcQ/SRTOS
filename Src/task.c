@@ -1,10 +1,10 @@
 #include "task.h"
 
 volatile uint32_t msTicks = 0;
-TaskNode *readyTasks = NULL;
 TaskNode *tasks = NULL;
 TaskNode *curTask = NULL;
 static uint32_t curTaskIDNum = 0;
+TaskNode *readyTasksList[MAX_PRIORITIES] = { NULL }; // All NULL initially
 
 static void prvAddTaskNodeToReadyList(TaskNode *task);
 
@@ -48,6 +48,7 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
 		new->next = NULL;
 		tasks = new;
 		curTask = tasks;
+		// prvAddTaskNodeToReadyList(new);
 		return;
 	}
 
@@ -95,7 +96,7 @@ void PendSV_Handler()
 	}
 	else
 	{
-		nextTask = &tasks;
+		nextTask = tasks;
 		nextSP = (uint32_t)nextTask->taskTCB->sp;
 	}
 
@@ -143,32 +144,27 @@ void taskYield()
 	setPendSVPending();
 }
 
-// TODO: Does changing task->next corrupt the tasks list?
 static void prvAddTaskNodeToReadyList(TaskNode *task)
 {
-	if (readyTasks == NULL)
-	{
-		task->next = NULL;
-		readyTasks = task;
+	// Temporary until tasks linked list is removed fully, and migrated to readyTaskList
+	TaskNode *newTN = (TaskNode *)malloc(sizeof(TaskNode));
+	newTN->taskTCB = task->taskTCB;
+	newTN->next = NULL;
+
+	uint32_t curPriority = newTN->taskTCB->priority;
+
+	TaskNode *curHead = readyTasksList[curPriority];
+
+	if (curHead == NULL) {
+		// This is the first node for this priority
+		readyTasksList[curPriority] = newTN;
 		return;
 	}
 
-	if (task->taskTCB->priority >= readyTasks->taskTCB->priority)
-	{
-		task->next = readyTasks;
-		readyTasks = task;
-		return;
+	// Get to the end of the LL
+	while (curHead->next != NULL) {
+		curHead = curHead->next;
 	}
 
-	TaskNode *cur = readyTasks;
-	TaskNode *next = cur->next;
-
-	while (next != NULL && task->taskTCB->priority < next->taskTCB->priority)
-	{
-		cur = cur->next;
-		next = next->next;
-	}
-
-	task->next = next;
-	cur->next = task;
+	curHead->next = newTN;
 }

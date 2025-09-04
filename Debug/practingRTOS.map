@@ -352,14 +352,14 @@ Discarded input sections
  .text          0x00000000        0x0 ./Src/task.o
  .data          0x00000000        0x0 ./Src/task.o
  .bss           0x00000000        0x0 ./Src/task.o
- .bss.readyTasks
-                0x00000000        0x4 ./Src/task.o
+ .bss.readyTasksList
+                0x00000000        0x8 ./Src/task.o
  .text.setPendSVPending
                 0x00000000       0x20 ./Src/task.o
  .text.taskYield
                 0x00000000        0xc ./Src/task.o
  .text.prvAddTaskNodeToReadyList
-                0x00000000       0x8c ./Src/task.o
+                0x00000000       0x14 ./Src/task.o
  .debug_macro   0x00000000      0xae4 ./Src/task.o
  .debug_macro   0x00000000       0x22 ./Src/task.o
  .debug_macro   0x00000000       0x8e ./Src/task.o
@@ -385,7 +385,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x185 ./Src/task.o
  .debug_macro   0x00000000       0x16 ./Src/task.o
  .debug_macro   0x00000000       0x29 ./Src/task.o
- .debug_macro   0x00000000       0x1c ./Src/task.o
+ .debug_macro   0x00000000       0x22 ./Src/task.o
  .text          0x00000000       0x14 ./Startup/startup_stm32f411vetx.o
  .data          0x00000000        0x0 ./Startup/startup_stm32f411vetx.o
  .bss           0x00000000        0x0 ./Startup/startup_stm32f411vetx.o
@@ -966,19 +966,19 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libm.a
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/libgcc.a
 
-.debug_info     0x00000000      0x765
+.debug_info     0x00000000      0x759
  .debug_info    0x00000000       0xf9 ./Src/config.o
  .debug_info    0x000000f9      0x179 ./Src/main.o
  .debug_info    0x00000272      0x168 ./Src/sysmem.o
- .debug_info    0x000003da      0x35b ./Src/task.o
- .debug_info    0x00000735       0x30 ./Startup/startup_stm32f411vetx.o
+ .debug_info    0x000003da      0x34f ./Src/task.o
+ .debug_info    0x00000729       0x30 ./Startup/startup_stm32f411vetx.o
 
-.debug_abbrev   0x00000000      0x42d
+.debug_abbrev   0x00000000      0x43f
  .debug_abbrev  0x00000000       0x6b ./Src/config.o
  .debug_abbrev  0x0000006b      0x120 ./Src/main.o
  .debug_abbrev  0x0000018b       0xbc ./Src/sysmem.o
- .debug_abbrev  0x00000247      0x1c2 ./Src/task.o
- .debug_abbrev  0x00000409       0x24 ./Startup/startup_stm32f411vetx.o
+ .debug_abbrev  0x00000247      0x1d4 ./Src/task.o
+ .debug_abbrev  0x0000041b       0x24 ./Startup/startup_stm32f411vetx.o
 
 .debug_aranges  0x00000000      0x120
  .debug_aranges
@@ -993,7 +993,7 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
                 0x000000f8       0x28 ./Startup/startup_stm32f411vetx.o
 
 .debug_rnglists
-                0x00000000       0xc2
+                0x00000000       0xc1
  .debug_rnglists
                 0x00000000       0x31 ./Src/config.o
  .debug_rnglists
@@ -1001,11 +1001,11 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_rnglists
                 0x00000050       0x13 ./Src/sysmem.o
  .debug_rnglists
-                0x00000063       0x46 ./Src/task.o
+                0x00000063       0x45 ./Src/task.o
  .debug_rnglists
-                0x000000a9       0x19 ./Startup/startup_stm32f411vetx.o
+                0x000000a8       0x19 ./Startup/startup_stm32f411vetx.o
 
-.debug_macro    0x00000000     0x207b
+.debug_macro    0x00000000     0x2081
  .debug_macro   0x00000000      0x147 ./Src/config.o
  .debug_macro   0x00000147      0xae4 ./Src/config.o
  .debug_macro   0x00000c2b       0x22 ./Src/config.o
@@ -1034,25 +1034,25 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_macro   0x00001a0d       0x29 ./Src/config.o
  .debug_macro   0x00001a36       0x3a ./Src/config.o
  .debug_macro   0x00001a70      0x15a ./Src/main.o
- .debug_macro   0x00001bca       0x1c ./Src/main.o
- .debug_macro   0x00001be6      0x112 ./Src/sysmem.o
- .debug_macro   0x00001cf8      0x23c ./Src/sysmem.o
- .debug_macro   0x00001f34      0x147 ./Src/task.o
+ .debug_macro   0x00001bca       0x22 ./Src/main.o
+ .debug_macro   0x00001bec      0x112 ./Src/sysmem.o
+ .debug_macro   0x00001cfe      0x23c ./Src/sysmem.o
+ .debug_macro   0x00001f3a      0x147 ./Src/task.o
 
-.debug_line     0x00000000     0x1817
+.debug_line     0x00000000     0x17b9
  .debug_line    0x00000000      0x618 ./Src/config.o
  .debug_line    0x00000618      0x561 ./Src/main.o
  .debug_line    0x00000b79      0x51c ./Src/sysmem.o
- .debug_line    0x00001095      0x707 ./Src/task.o
- .debug_line    0x0000179c       0x7b ./Startup/startup_stm32f411vetx.o
+ .debug_line    0x00001095      0x6a9 ./Src/task.o
+ .debug_line    0x0000173e       0x7b ./Startup/startup_stm32f411vetx.o
 
-.debug_str      0x00000000     0x7ad0
- .debug_str     0x00000000     0x7ad0 ./Src/config.o
+.debug_str      0x00000000     0x7ae5
+ .debug_str     0x00000000     0x7ae5 ./Src/config.o
                                0x75a3 (size before relaxing)
- .debug_str     0x00007ad0     0x7623 ./Src/main.o
- .debug_str     0x00007ad0     0x777a ./Src/sysmem.o
- .debug_str     0x00007ad0     0x7547 ./Src/task.o
- .debug_str     0x00007ad0       0x66 ./Startup/startup_stm32f411vetx.o
+ .debug_str     0x00007ae5     0x7634 ./Src/main.o
+ .debug_str     0x00007ae5     0x777a ./Src/sysmem.o
+ .debug_str     0x00007ae5     0x755c ./Src/task.o
+ .debug_str     0x00007ae5       0x66 ./Startup/startup_stm32f411vetx.o
 
 .comment        0x00000000       0x43
  .comment       0x00000000       0x43 ./Src/config.o
