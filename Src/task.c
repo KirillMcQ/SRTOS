@@ -5,7 +5,8 @@ TaskNode *curTask = NULL;
 static uint32_t curTaskIDNum = 0;
 TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
 
-static void prvAddTaskNodeToReadyList(TaskNode *task);
+static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
+static TaskNode *prvGetHighestTaskReadyToExecute();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
@@ -74,7 +75,7 @@ void PendSV_Handler()
 	}
 	else
 	{
-		nextTask = tasks;
+		nextTask = NULL; // TODO: THIS WILL NOT RUN - CHANGE ONCE VERY OTHER FUNCTION IS COMPLETE
 		nextSP = (uint32_t)nextTask->taskTCB->sp;
 	}
 
@@ -162,7 +163,7 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
 	{
 		if (readyTasksList[idx] != NULL)
 		{
-			return readyTaskList[idx];
+			return readyTasksList[idx];
 		}
 		--idx;
 	}
