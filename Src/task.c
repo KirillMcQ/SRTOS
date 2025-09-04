@@ -109,7 +109,7 @@ void SVC_Handler()
 
 void startScheduler()
 {
-	prvGetHighestTaskReadyToExecute();
+	curTask = prvGetHighestTaskReadyToExecute();
 	__asm volatile("svc #0");
 }
 
@@ -166,4 +166,6 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
 		}
 		--idx;
 	}
+
+	return NULL;
 }
