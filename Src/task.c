@@ -92,7 +92,6 @@ void PendSV_Handler()
 			"bx lr\n");
 }
 
-// TODO: Find the highest priority task to start
 void SVC_Handler()
 {
 	TCB *tcbToStart = curTask->taskTCB;
