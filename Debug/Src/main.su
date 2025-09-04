@@ -1,3 +1,3 @@
-../Src/main.c:8:6:task1_blueLED	4	static
-../Src/main.c:19:6:task2_greenLED	4	static
-../Src/main.c:29:5:main	8	static
+../Src/main.c:9:6:task1_blueLED	4	static
+../Src/main.c:22:6:task2_greenLED	4	static
+../Src/main.c:35:5:main	8	static
