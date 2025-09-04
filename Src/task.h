@@ -11,6 +11,12 @@
 #define STACK_SIZE 128
 #define MAX_PRIORITIES 2 // For now, only 2 priorities: 0 and 1
 
+typedef enum
+{
+	STATUS_SUCCESS = 0,
+	STATUS_FAILURE = 1
+} STATUS;
+
 typedef struct
 {
 	uint32_t *sp;
@@ -25,12 +31,10 @@ typedef struct
 } TaskNode;
 
 extern volatile uint32_t msTicks;
-extern TaskNode *tasks;
-extern TaskNode *curTask;
 extern TaskNode *readyTasksList[MAX_PRIORITIES]; // Every element represents the head of a Linked List for that priority level
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void));
-void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int);
+STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int);
 
 void SysTick_Handler();
 void PendSV_Handler();

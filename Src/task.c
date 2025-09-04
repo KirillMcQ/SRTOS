@@ -1,10 +1,9 @@
 #include "task.h"
 
 volatile uint32_t msTicks = 0;
-TaskNode *tasks = NULL;
 TaskNode *curTask = NULL;
 static uint32_t curTaskIDNum = 0;
-TaskNode *readyTasksList[MAX_PRIORITIES] = { NULL }; // All NULL initially
+TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
 
 static void prvAddTaskNodeToReadyList(TaskNode *task);
 
@@ -30,7 +29,7 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 	return &taskStack[STACK_SIZE - 16];
 }
 
-void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority)
+STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority)
 {
 	TCB *taskTCB = (TCB *)malloc(sizeof(TCB));
 
@@ -39,32 +38,12 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
 	taskTCB->id = curTaskIDNum;
 	curTaskIDNum++;
 
-	// Check if the linked list has been initialized yet
-	if (tasks == NULL)
-	{
-		// This is the first task, so this is where we will start
-		TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
-		new->taskTCB = taskTCB;
-		new->next = NULL;
-		tasks = new;
-		curTask = tasks;
-		// prvAddTaskNodeToReadyList(new);
-		return;
-	}
-
-	// Get the tail of the tasks linked list
-	TaskNode *cur = tasks;
-	while (cur->next != NULL)
-	{
-		cur = (cur->next);
-	}
-
 	// Insert at end of tasks linked list
 	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
 	new->taskTCB = taskTCB;
 	new->next = NULL;
-	cur->next = new;
-	// prvAddTaskNodeToReadyList(new);
+
+	return prvAddTaskNodeToReadyList(new);
 }
 
 void SysTick_Handler()
@@ -72,10 +51,9 @@ void SysTick_Handler()
 	msTicks++;
 }
 
+// TODO: Use the highest priority task in the readyTasksList
 void PendSV_Handler()
 {
-	GPIOD_ODR ^= (1 << 13);
-
 	uint32_t spToSave;
 
 	__asm volatile(
@@ -114,6 +92,7 @@ void PendSV_Handler()
 			"bx lr\n");
 }
 
+// TODO: Find the highest priority task to start
 void SVC_Handler()
 {
 	TCB *tcbToStart = curTask->taskTCB;
@@ -131,6 +110,7 @@ void SVC_Handler()
 
 void startScheduler()
 {
+	prvGetHighestTaskReadyToExecute();
 	__asm volatile("svc #0");
 }
 
@@ -144,27 +124,47 @@ void taskYield()
 	setPendSVPending();
 }
 
-static void prvAddTaskNodeToReadyList(TaskNode *task)
+static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
 {
-	// Temporary until tasks linked list is removed fully, and migrated to readyTaskList
-	TaskNode *newTN = (TaskNode *)malloc(sizeof(TaskNode));
-	newTN->taskTCB = task->taskTCB;
-	newTN->next = NULL;
+	// Safegaurds
+	if (task->taskTCB->priority >= MAX_PRIORITIES)
+	{
+		return STATUS_FAILURE;
+	}
 
-	uint32_t curPriority = newTN->taskTCB->priority;
+	task->next = NULL;
+
+	uint32_t curPriority = task->taskTCB->priority;
 
 	TaskNode *curHead = readyTasksList[curPriority];
 
-	if (curHead == NULL) {
+	if (curHead == NULL)
+	{
 		// This is the first node for this priority
-		readyTasksList[curPriority] = newTN;
-		return;
+		readyTasksList[curPriority] = task;
+		return STATUS_SUCCESS;
 	}
 
 	// Get to the end of the LL
-	while (curHead->next != NULL) {
+	while (curHead->next != NULL)
+	{
 		curHead = curHead->next;
 	}
 
-	curHead->next = newTN;
+	curHead->next = task;
+	return STATUS_SUCCESS;
+}
+
+static TaskNode *prvGetHighestTaskReadyToExecute()
+{
+	int idx = MAX_PRIORITIES - 1; // Highest Priority Possible
+
+	while (idx >= 0)
+	{
+		if (readyTasksList[idx] != NULL)
+		{
+			return readyTaskList[idx];
+		}
+		--idx;
+	}
 }
