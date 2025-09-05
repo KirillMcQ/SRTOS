@@ -152,11 +152,16 @@ void taskYield()
 	setPendSVPending();
 }
 
-// TODO: Implement
-void taskDelay()
+void taskDelay(uint32_t ticksToDelay)
 {
 	uint32_t curTaskID = curTask->taskTCB->id;
 	uint32_t curTaskPriority = curTask->taskTCB->priority;
+
+	// Set the delayedUntil field on the taskTCB
+
+	// Remove the task from the ready list
+
+	// Add the task to the blocked list
 }
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task)

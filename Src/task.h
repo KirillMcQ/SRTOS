@@ -45,6 +45,6 @@ void setPendSVPending();
 void startScheduler();
 
 void taskYield(); // TODO: This shouldn't work right now. Fix later.
-void taskDelay();
+void taskDelay(uint32_t ticksToDelay);
 
 #endif
