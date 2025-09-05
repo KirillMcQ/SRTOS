@@ -1,12 +1,13 @@
 #include "task.h"
 
 volatile uint32_t msTicks = 0;
-TaskNode *readyTasks = NULL;
-TaskNode *tasks = NULL;
 TaskNode *curTask = NULL;
 static uint32_t curTaskIDNum = 0;
+TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
+static TaskNode *nextTask = NULL;
 
-static void prvAddTaskNodeToReadyList(TaskNode *task);
+static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
+static TaskNode *prvGetHighestTaskReadyToExecute();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
@@ -30,7 +31,7 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 	return &taskStack[STACK_SIZE - 16];
 }
 
-void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority)
+STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority)
 {
 	TCB *taskTCB = (TCB *)malloc(sizeof(TCB));
 
@@ -39,42 +40,55 @@ void createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int prior
 	taskTCB->id = curTaskIDNum;
 	curTaskIDNum++;
 
-	// Check if the linked list has been initialized yet
-	if (tasks == NULL)
-	{
-		// This is the first task, so this is where we will start
-		TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
-		new->taskTCB = taskTCB;
-		new->next = NULL;
-		tasks = new;
-		curTask = tasks;
-		return;
-	}
-
-	// Get the tail of the tasks linked list
-	TaskNode *cur = tasks;
-	while (cur->next != NULL)
-	{
-		cur = (cur->next);
-	}
-
 	// Insert at end of tasks linked list
 	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
 	new->taskTCB = taskTCB;
 	new->next = NULL;
-	cur->next = new;
-	// prvAddTaskNodeToReadyList(new);
+
+	return prvAddTaskNodeToReadyList(new);
 }
 
+// TODO: Make tasks able to block
 void SysTick_Handler()
 {
+	if (!curTask) {
+		msTicks++;
+		return;
+	}
+	uint32_t curExecutingPriority = curTask->taskTCB->priority;
+
+	TaskNode *highestPriorityPossibleExecute = prvGetHighestTaskReadyToExecute();
+
+	// Check if a higher priority task is ready to execute
+	if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority) {
+		nextTask = highestPriorityPossibleExecute;
+		setPendSVPending();
+		msTicks++;
+		return;
+	}
+
+	if (curTask->next == NULL) {
+		if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id) {
+			// There is another task of equal priority, time to switch.
+			nextTask = highestPriorityPossibleExecute;
+			setPendSVPending();
+			msTicks++;
+			return;
+		}
+	} else {
+		// There is another task of equal priority, time to switch.
+		nextTask = curTask->next;
+		setPendSVPending();
+		msTicks++;
+		return;
+	}
+
 	msTicks++;
 }
 
+// TODO: Use the highest priority task in the readyTasksList
 void PendSV_Handler()
 {
-	GPIOD_ODR ^= (1 << 13);
-
 	uint32_t spToSave;
 
 	__asm volatile(
@@ -85,19 +99,8 @@ void PendSV_Handler()
 
 	curTask->taskTCB->sp = (uint32_t *)spToSave;
 
-	TaskNode *nextTask = (TaskNode *)(curTask->next);
 
-	uint32_t nextSP;
-
-	if (nextTask != NULL)
-	{
-		nextSP = (uint32_t)nextTask->taskTCB->sp;
-	}
-	else
-	{
-		nextTask = &tasks;
-		nextSP = (uint32_t)nextTask->taskTCB->sp;
-	}
+	uint32_t nextSP = nextTask->taskTCB->sp;
 
 	curTask = nextTask;
 
@@ -130,6 +133,7 @@ void SVC_Handler()
 
 void startScheduler()
 {
+	curTask = prvGetHighestTaskReadyToExecute();
 	__asm volatile("svc #0");
 }
 
@@ -143,32 +147,49 @@ void taskYield()
 	setPendSVPending();
 }
 
-// TODO: Does changing task->next corrupt the tasks list?
-static void prvAddTaskNodeToReadyList(TaskNode *task)
+static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
 {
-	if (readyTasks == NULL)
+	// Safeguards
+	if (task->taskTCB->priority >= MAX_PRIORITIES)
 	{
-		task->next = NULL;
-		readyTasks = task;
-		return;
+		return STATUS_FAILURE;
 	}
 
-	if (task->taskTCB->priority >= readyTasks->taskTCB->priority)
+	task->next = NULL;
+
+	uint32_t curPriority = task->taskTCB->priority;
+
+	TaskNode *curHead = readyTasksList[curPriority];
+
+	if (curHead == NULL)
 	{
-		task->next = readyTasks;
-		readyTasks = task;
-		return;
+		// This is the first node for this priority
+		readyTasksList[curPriority] = task;
+		return STATUS_SUCCESS;
 	}
 
-	TaskNode *cur = readyTasks;
-	TaskNode *next = cur->next;
-
-	while (next != NULL && task->taskTCB->priority < next->taskTCB->priority)
+	// Get to the end of the LL
+	while (curHead->next != NULL)
 	{
-		cur = cur->next;
-		next = next->next;
+		curHead = curHead->next;
 	}
 
-	task->next = next;
-	cur->next = task;
+	curHead->next = task;
+	return STATUS_SUCCESS;
+}
+
+static TaskNode *prvGetHighestTaskReadyToExecute()
+{
+	int idx = MAX_PRIORITIES - 1; // Highest Priority Possible
+
+	while (idx >= 0)
+	{
+		if (readyTasksList[idx] != NULL)
+		{
+			return readyTasksList[idx];
+		}
+		--idx;
+	}
+
+	return NULL;
 }
