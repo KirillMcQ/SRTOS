@@ -4,6 +4,7 @@ volatile uint32_t msTicks = 0;
 TaskNode *curTask = NULL;
 static uint32_t curTaskIDNum = 0;
 TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
+static TaskNode *nextTask = NULL;
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
@@ -47,8 +48,41 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 	return prvAddTaskNodeToReadyList(new);
 }
 
+// TODO: Make tasks able to block
 void SysTick_Handler()
 {
+	if (!curTask) {
+		msTicks++;
+		return;
+	}
+	uint32_t curExecutingPriority = curTask->taskTCB->priority;
+
+	TaskNode *highestPriorityPossibleExecute = prvGetHighestTaskReadyToExecute();
+
+	// Check if a higher priority task is ready to execute
+	if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority) {
+		nextTask = highestPriorityPossibleExecute;
+		setPendSVPending();
+		msTicks++;
+		return;
+	}
+
+	if (curTask->next == NULL) {
+		if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id) {
+			// There is another task of equal priority, time to switch.
+			nextTask = highestPriorityPossibleExecute;
+			setPendSVPending();
+			msTicks++;
+			return;
+		}
+	} else {
+		// There is another task of equal priority, time to switch.
+		nextTask = curTask->next;
+		setPendSVPending();
+		msTicks++;
+		return;
+	}
+
 	msTicks++;
 }
 
@@ -65,19 +99,8 @@ void PendSV_Handler()
 
 	curTask->taskTCB->sp = (uint32_t *)spToSave;
 
-	TaskNode *nextTask = (TaskNode *)(curTask->next);
 
-	uint32_t nextSP;
-
-	if (nextTask != NULL)
-	{
-		nextSP = (uint32_t)nextTask->taskTCB->sp;
-	}
-	else
-	{
-		nextTask = NULL; // TODO: THIS WILL NOT RUN - CHANGE ONCE VERY OTHER FUNCTION IS COMPLETE
-		nextSP = (uint32_t)nextTask->taskTCB->sp;
-	}
+	uint32_t nextSP = nextTask->taskTCB->sp;
 
 	curTask = nextTask;
 
@@ -126,7 +149,7 @@ void taskYield()
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
 {
-	// Safegaurds
+	// Safeguards
 	if (task->taskTCB->priority >= MAX_PRIORITIES)
 	{
 		return STATUS_FAILURE;
