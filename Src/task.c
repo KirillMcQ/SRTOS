@@ -1,10 +1,11 @@
 #include "task.h"
 
-volatile uint32_t msTicks = 0;
+volatile uint32_t msTicks = 0; // Overflows in ~49 days of concurrent running.
 TaskNode *curTask = NULL;
-static uint32_t curTaskIDNum = 0;
+static uint32_t prvCurTaskIDNum = 0;
 TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
-static TaskNode *nextTask = NULL;
+static TaskNode *prvNextTask = NULL;
+static TaskNode *prvDelayedTasks = NULL; // Head of delayed tasks list
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
@@ -37,8 +38,8 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 
 	taskTCB->sp = initTaskStackFrame(taskStack, taskFunc);
 	taskTCB->priority = priority;
-	taskTCB->id = curTaskIDNum;
-	curTaskIDNum++;
+	taskTCB->id = prvCurTaskIDNum;
+	prvCurTaskIDNum++;
 
 	// Insert at end of tasks linked list
 	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
@@ -51,7 +52,8 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 // TODO: Make tasks able to block
 void SysTick_Handler()
 {
-	if (!curTask) {
+	if (!curTask)
+	{
 		msTicks++;
 		return;
 	}
@@ -60,24 +62,29 @@ void SysTick_Handler()
 	TaskNode *highestPriorityPossibleExecute = prvGetHighestTaskReadyToExecute();
 
 	// Check if a higher priority task is ready to execute
-	if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority) {
-		nextTask = highestPriorityPossibleExecute;
+	if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority)
+	{
+		prvNextTask = highestPriorityPossibleExecute;
 		setPendSVPending();
 		msTicks++;
 		return;
 	}
 
-	if (curTask->next == NULL) {
-		if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id) {
+	if (curTask->next == NULL)
+	{
+		if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id)
+		{
 			// There is another task of equal priority, time to switch.
-			nextTask = highestPriorityPossibleExecute;
+			prvNextTask = highestPriorityPossibleExecute;
 			setPendSVPending();
 			msTicks++;
 			return;
 		}
-	} else {
+	}
+	else
+	{
 		// There is another task of equal priority, time to switch.
-		nextTask = curTask->next;
+		prvNextTask = curTask->next;
 		setPendSVPending();
 		msTicks++;
 		return;
@@ -86,7 +93,6 @@ void SysTick_Handler()
 	msTicks++;
 }
 
-// TODO: Use the highest priority task in the readyTasksList
 void PendSV_Handler()
 {
 	uint32_t spToSave;
@@ -99,10 +105,9 @@ void PendSV_Handler()
 
 	curTask->taskTCB->sp = (uint32_t *)spToSave;
 
+	uint32_t nextSP = prvNextTask->taskTCB->sp;
 
-	uint32_t nextSP = nextTask->taskTCB->sp;
-
-	curTask = nextTask;
+	curTask = prvNextTask;
 
 	__asm volatile(
 			"mov r2, %[nextSP]\n"
@@ -145,6 +150,13 @@ void setPendSVPending()
 void taskYield()
 {
 	setPendSVPending();
+}
+
+// TODO: Implement
+void taskDelay()
+{
+	uint32_t curTaskID = curTask->taskTCB->id;
+	uint32_t curTaskPriority = curTask->taskTCB->priority;
 }
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
