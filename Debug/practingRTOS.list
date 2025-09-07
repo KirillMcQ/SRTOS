@@ -401,8 +401,8 @@ int main(void)
 	configureAll();
  80003dc:	f7ff ffb6 	bl	800034c <configureAll>
 
-	createTask(task1Stack, &task1_blueLED, 1);
- 80003e0:	2201      	movs	r2, #1
+	createTask(task1Stack, &task1_blueLED, 0);
+ 80003e0:	2200      	movs	r2, #0
  80003e2:	4906      	ldr	r1, [pc, #24]	@ (80003fc <main+0x24>)
  80003e4:	4806      	ldr	r0, [pc, #24]	@ (8000400 <main+0x28>)
  80003e6:	f000 f8a9 	bl	800053c <createTask>

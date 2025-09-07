@@ -5,10 +5,12 @@ TaskNode *curTask = NULL;
 static uint32_t prvCurTaskIDNum = 0;
 TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
 static TaskNode *prvNextTask = NULL;
-static TaskNode *prvDelayedTasks = NULL; // Head of delayed tasks list
+static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currently, the only way to block is to be delayed)
 
+// File-scoped private function headers
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
+static void prvAddTaskToBlockedList(TaskNode *task);
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
@@ -157,11 +159,46 @@ void taskDelay(uint32_t ticksToDelay)
 	uint32_t curTaskID = curTask->taskTCB->id;
 	uint32_t curTaskPriority = curTask->taskTCB->priority;
 
-	// Set the delayedUntil field on the taskTCB
+	curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
 
 	// Remove the task from the ready list
+	TaskNode *cur = readyTasksList[curTaskPriority];
+	TaskNode *prev = NULL;
 
-	// Add the task to the blocked list
+	if (cur->next == NULL) {
+		// This is the only task for this priority, and it must be curTask
+		readyTasksList[curTaskPriority] = NULL;
+		prvNextTask = prvGetHighestTaskReadyToExecute();
+		prvAddTaskToBlockedList(curTask);
+		setPendSVPending();
+		return;
+	}
+
+	// Check if curTask is the head of the priority
+	if (cur->taskTCB->id == curTaskID) {
+		// We know there is more than one task, just make the new head the next task
+		readyTasksList[curTaskPriority] = curTask->next;
+
+		prvNextTask = prvGetHighestTaskReadyToExecute();
+		prvAddTaskToBlockedList(curTask);
+		setPendSVPending();
+		return;
+	}
+
+
+	// There is more than one task for the current priority
+	while (cur->taskTCB->id != curTaskID) {
+		prev = cur;
+		cur = cur->next;
+	}
+
+	TaskNode *afterCur = cur->next;
+	prev->next = afterCur;
+
+	prvNextTask = prvGetHighestTaskReadyToExecute();
+	prvAddTaskToBlockedList(curTask);
+	setPendSVPending();
+	return;
 }
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
@@ -209,4 +246,24 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
 	}
 
 	return NULL;
+}
+
+// Maybe make this return a STATUS?
+static void prvAddTaskToBlockedList(TaskNode *task) {
+	task->next = NULL;
+
+	if (prvBlockedTasks == NULL) {
+		prvBlockedTasks = task;
+		return;
+	}
+
+	TaskNode *cur = prvBlockedTasks;
+
+	while (cur->next != NULL) {
+		cur = cur->next;
+	}
+
+	cur->next = task;
+
+	return;
 }
