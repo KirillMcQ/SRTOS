@@ -11,6 +11,7 @@ static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currentl
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
 static void prvAddTaskToBlockedList(TaskNode *task);
+static void prvUnblockDelayedTasksReadyToUnblock();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
@@ -59,6 +60,7 @@ void SysTick_Handler()
 		msTicks++;
 		return;
 	}
+
 	uint32_t curExecutingPriority = curTask->taskTCB->priority;
 
 	TaskNode *highestPriorityPossibleExecute = prvGetHighestTaskReadyToExecute();
@@ -266,4 +268,17 @@ static void prvAddTaskToBlockedList(TaskNode *task) {
 	cur->next = task;
 
 	return;
+}
+
+// Maybe make this return a STATUS?
+// TODO: Finish implementing
+static void prvUnblockDelayedTasksReadyToUnblock() {
+	TaskNode *cur = prvBlockedTasks;
+	TaskNode *prev = NULL;
+
+	while (cur != NULL) {
+		if (cur->taskTCB->delayedUntil == msTicks) {
+			// Add it to the ready list and remove from this list
+		}
+	}
 }
