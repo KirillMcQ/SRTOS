@@ -328,9 +328,10 @@ static TaskNode *createIdleTask()
 {
 	idleTaskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
 	idleTaskTCB->priority = 0;
-	idleTaskTCB->id = 999999;
+	idleTaskTCB->id = prvCurTaskIDNum;
 	idleTaskNode->taskTCB = taskTCB;
 	idleTaskNode->next = NULL;
+	prvCurTask++;
 
 	return idleTaskNode;
 }
