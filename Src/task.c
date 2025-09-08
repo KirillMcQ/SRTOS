@@ -9,6 +9,8 @@ static uint32_t prvCurTaskIDNum = 0;
 static TaskNode *prvNextTask = NULL;
 static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currently, the only way to block is to be delayed)
 static uint32_t idleTaskStack[STACK_SIZE];
+static TCB *idleTaskTCB;
+static TaskNode *idleTaskNode;
 
 // File-scoped private function headers
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
@@ -41,21 +43,18 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 	return &taskStack[STACK_SIZE - 16];
 }
 
-STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority)
+STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode)
 {
-	TCB *taskTCB = (TCB *)malloc(sizeof(TCB));
-
-	taskTCB->sp = initTaskStackFrame(taskStack, taskFunc);
-	taskTCB->priority = priority;
-	taskTCB->id = prvCurTaskIDNum;
+	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
+	userAllocatedTCB->priority = priority;
+	userAllocatedTCB->id = prvCurTaskIDNum;
 	prvCurTaskIDNum++;
 
 	// Insert at end of tasks linked list
-	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
-	new->taskTCB = taskTCB;
-	new->next = NULL;
+	userAllocatedTaskNode->taskTCB = userAllocatedTCB;
+	userAllocatedTaskNode->next = NULL;
 
-	return prvAddTaskNodeToReadyList(new);
+	return prvAddTaskNodeToReadyList(userAllocatedTaskNode);
 }
 
 void SysTick_Handler()
@@ -171,7 +170,8 @@ void taskDelay(uint32_t ticksToDelay)
 	TaskNode *cur = readyTasksList[curTaskPriority];
 	TaskNode *prev = NULL;
 
-	if (cur->next == NULL) {
+	if (cur->next == NULL)
+	{
 		// This is the only task for this priority, and it must be curTask
 		readyTasksList[curTaskPriority] = NULL;
 		prvNextTask = prvGetHighestTaskReadyToExecute();
@@ -181,7 +181,8 @@ void taskDelay(uint32_t ticksToDelay)
 	}
 
 	// Check if curTask is the head of the priority
-	if (cur->taskTCB->id == curTaskID) {
+	if (cur->taskTCB->id == curTaskID)
+	{
 		// We know there is more than one task, just make the new head the next task
 		readyTasksList[curTaskPriority] = curTask->next;
 
@@ -191,9 +192,9 @@ void taskDelay(uint32_t ticksToDelay)
 		return;
 	}
 
-
 	// There is more than one task for the current priority
-	while (cur->taskTCB->id != curTaskID) {
+	while (cur->taskTCB->id != curTaskID)
+	{
 		prev = cur;
 		cur = cur->next;
 	}
@@ -255,35 +256,42 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
 }
 
 // Maybe make this return a STATUS?
-static void prvAddTaskToBlockedList(TaskNode *task) {
+static void prvAddTaskToBlockedList(TaskNode *task)
+{
 	task->next = NULL;
 
-	if (prvBlockedTasks == NULL) {
+	if (prvBlockedTasks == NULL)
+	{
 		prvBlockedTasks = task;
 		return;
 	}
 
 	TaskNode *cur = prvBlockedTasks;
 
-	while (cur->next != NULL) {
+	while (cur->next != NULL)
+	{
 		cur = cur->next;
 	}
 
 	cur->next = task;
 }
 
-static void prvUnblockDelayedTasksReadyToUnblock() {
+static void prvUnblockDelayedTasksReadyToUnblock()
+{
 	TaskNode *cur = prvBlockedTasks;
 	TaskNode *prev = NULL;
 
-	if (cur == NULL) {
+	if (cur == NULL)
+	{
 		// Nothing blocked, nothing to do
 		return;
 	}
 
-	if (cur->next == NULL) {
+	if (cur->next == NULL)
+	{
 		// This is the only node
-		if (cur->taskTCB->delayedUntil == msTicks) {
+		if (cur->taskTCB->delayedUntil == msTicks)
+		{
 			// Remove the task
 			prvBlockedTasks = NULL;
 			prvAddTaskNodeToReadyList(cur);
@@ -291,39 +299,46 @@ static void prvUnblockDelayedTasksReadyToUnblock() {
 		}
 	}
 
-	while (cur != NULL) {
+	while (cur != NULL)
+	{
 		TaskNode *tempNext = cur->next;
-		if (cur->taskTCB->delayedUntil == msTicks) {
+		if (cur->taskTCB->delayedUntil == msTicks)
+		{
 			// Add it to the ready list and remove from the blocked list
-			if (prev == NULL) {
+			if (prev == NULL)
+			{
 				prvBlockedTasks = cur->next;
 				prvAddTaskNodeToReadyList(cur);
-			} else {
+			}
+			else
+			{
 				prev->next = cur->next;
 				prvAddTaskNodeToReadyList(cur);
 			}
-		} else {
+		}
+		else
+		{
 			prev = cur;
 		}
 		cur = tempNext;
 	}
 }
 
-static TaskNode *createIdleTask() {
-	TCB *taskTCB = (TCB *)malloc(sizeof(TCB));
+static TaskNode *createIdleTask()
+{
+	idleTaskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
+	idleTaskTCB->priority = 0;
+	idleTaskTCB->id = 999999;
+	idleTaskNode->taskTCB = taskTCB;
+	idleTaskNode->next = NULL;
 
-	taskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
-	taskTCB->priority = 0;
-	taskTCB->id = 999999;
-	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
-	new->taskTCB = taskTCB;
-	new->next = NULL;
-
-	return new;
+	return idleTaskNode;
 }
 
-static void idleTask() {
-	for (;;) {
+static void idleTask()
+{
+	for (;;)
+	{
 		__asm volatile("wfi");
 	}
 }

@@ -1,9 +1,13 @@
 #include "config.h"
 #include "task.h"
 
-// TODO: Define these in another file, probably task.c, so the user doesn't need to.
+// Static allocation, user must provide these memory buffers
 uint32_t task1Stack[STACK_SIZE];
 uint32_t task2Stack[STACK_SIZE];
+TCB *task1TCB;
+TCB *task2TCB;
+TaskNode *task1Node;
+TasNode *task2Node;
 
 // Blinking LED tasks
 void task1_blueLED()
@@ -28,8 +32,8 @@ int main(void)
 {
 	configureAll();
 
-	createTask(task1Stack, &task1_blueLED, 1);
-	createTask(task2Stack, &task2_greenLED, 1);
+	createTask(task1Stack, &task1_blueLED, 1, task1TCB, task1Node);
+	createTask(task2Stack, &task2_greenLED, 1, task2TCB, task2Node);
 
 	startScheduler();
 	while (1)
