@@ -13,6 +13,10 @@ static TaskNode *prvGetHighestTaskReadyToExecute();
 static void prvAddTaskToBlockedList(TaskNode *task);
 static void prvUnblockDelayedTasksReadyToUnblock();
 
+// *****
+// TODO: Add an IDLE task and if prvGetHighestTaskReadyToExecute returns NULL, return the IDLE task.
+// *****
+
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
 	taskStack[STACK_SIZE - 1] = 0x01000000;									// xPSR
@@ -52,12 +56,14 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 	return prvAddTaskNodeToReadyList(new);
 }
 
-// TODO: Make tasks able to block
 void SysTick_Handler()
 {
-	if (!curTask)
+	msTicks++;
+
+	prvUnblockDelayedTasksReadyToUnblock();
+
+	if (curTask == NULL)
 	{
-		msTicks++;
 		return;
 	}
 
@@ -70,7 +76,6 @@ void SysTick_Handler()
 	{
 		prvNextTask = highestPriorityPossibleExecute;
 		setPendSVPending();
-		msTicks++;
 		return;
 	}
 
@@ -81,7 +86,6 @@ void SysTick_Handler()
 			// There is another task of equal priority, time to switch.
 			prvNextTask = highestPriorityPossibleExecute;
 			setPendSVPending();
-			msTicks++;
 			return;
 		}
 	}
@@ -90,11 +94,8 @@ void SysTick_Handler()
 		// There is another task of equal priority, time to switch.
 		prvNextTask = curTask->next;
 		setPendSVPending();
-		msTicks++;
 		return;
 	}
-
-	msTicks++;
 }
 
 void PendSV_Handler()
@@ -200,7 +201,6 @@ void taskDelay(uint32_t ticksToDelay)
 	prvNextTask = prvGetHighestTaskReadyToExecute();
 	prvAddTaskToBlockedList(curTask);
 	setPendSVPending();
-	return;
 }
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
@@ -266,19 +266,36 @@ static void prvAddTaskToBlockedList(TaskNode *task) {
 	}
 
 	cur->next = task;
-
-	return;
 }
 
 // Maybe make this return a STATUS?
-// TODO: Finish implementing
 static void prvUnblockDelayedTasksReadyToUnblock() {
 	TaskNode *cur = prvBlockedTasks;
 	TaskNode *prev = NULL;
 
-	while (cur != NULL) {
+	if (cur == NULL) {
+		// Nothing blocked, nothing to do
+		return;
+	}
+
+	if (cur->next == NULL) {
+		// This is the only node
 		if (cur->taskTCB->delayedUntil == msTicks) {
-			// Add it to the ready list and remove from this list
+			// Remove the task
+			prvBlockedTasks = NULL;
+			prvAddTaskNodeToReadyList(cur);
+			return;
 		}
+	}
+
+	while (cur != NULL) {
+		TaskNode *tempNext = cur->next;
+		if (cur->taskTCB->delayedUntil == msTicks) {
+			// Add it to the ready list and remove from the blocked list
+			prev->next = cur->next;
+			prvAddTaskNodeToReadyList(cur);
+		}
+		cur = tempNext;
+		prev = cur;
 	}
 }

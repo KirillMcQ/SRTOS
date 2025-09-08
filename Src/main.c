@@ -8,27 +8,19 @@ uint32_t task2Stack[STACK_SIZE];
 // Blinking LED tasks
 void task1_blueLED()
 {
-	static uint32_t nextBlink = 0;
 	for (;;)
 	{
-		if (msTicks >= nextBlink)
-		{
-			GPIOD_ODR ^= (1 << 15);
-			nextBlink = msTicks + 500;
-		}
+		GPIOD_ODR ^= (1 << 15);
+		taskDelay(500);
 	}
 }
 
 void task2_greenLED()
 {
-	static uint32_t nextBlink = 0;
 	for (;;)
 	{
-		if (msTicks >= nextBlink)
-		{
-			GPIOD_ODR ^= (1 << 12);
-			nextBlink = msTicks + 500;
-		}
+		GPIOD_ODR ^= (1 << 12);
+		taskDelay(500);
 	}
 }
 
