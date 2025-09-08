@@ -2,20 +2,22 @@
 
 volatile uint32_t msTicks = 0; // Overflows in ~49 days of concurrent running.
 TaskNode *curTask = NULL;
-static uint32_t prvCurTaskIDNum = 0;
 TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
+
+// File-scoped private variables
+static uint32_t prvCurTaskIDNum = 0;
 static TaskNode *prvNextTask = NULL;
 static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currently, the only way to block is to be delayed)
+static uint32_t idleTaskStack[STACK_SIZE];
 
 // File-scoped private function headers
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
 static void prvAddTaskToBlockedList(TaskNode *task);
 static void prvUnblockDelayedTasksReadyToUnblock();
-
-// *****
-// TODO: Add an IDLE task and if prvGetHighestTaskReadyToExecute returns NULL, return the IDLE task.
-// *****
+static TaskNode *prvIdleTask;
+static TaskNode *createIdleTask();
+static void idleTask();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
@@ -143,6 +145,7 @@ void SVC_Handler()
 
 void startScheduler()
 {
+	prvIdleTask = createIdleTask();
 	curTask = prvGetHighestTaskReadyToExecute();
 	__asm volatile("svc #0");
 }
@@ -247,7 +250,8 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
 		--idx;
 	}
 
-	return NULL;
+	// If no tasks are ready to run, return the idle task
+	return prvIdleTask;
 }
 
 // Maybe make this return a STATUS?
@@ -268,7 +272,6 @@ static void prvAddTaskToBlockedList(TaskNode *task) {
 	cur->next = task;
 }
 
-// Maybe make this return a STATUS?
 static void prvUnblockDelayedTasksReadyToUnblock() {
 	TaskNode *cur = prvBlockedTasks;
 	TaskNode *prev = NULL;
@@ -292,10 +295,35 @@ static void prvUnblockDelayedTasksReadyToUnblock() {
 		TaskNode *tempNext = cur->next;
 		if (cur->taskTCB->delayedUntil == msTicks) {
 			// Add it to the ready list and remove from the blocked list
-			prev->next = cur->next;
-			prvAddTaskNodeToReadyList(cur);
+			if (prev == NULL) {
+				prvBlockedTasks = cur->next;
+				prvAddTaskNodeToReadyList(cur);
+			} else {
+				prev->next = cur->next;
+				prvAddTaskNodeToReadyList(cur);
+			}
+		} else {
+			prev = cur;
 		}
 		cur = tempNext;
-		prev = cur;
+	}
+}
+
+static TaskNode *createIdleTask() {
+	TCB *taskTCB = (TCB *)malloc(sizeof(TCB));
+
+	taskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
+	taskTCB->priority = 0;
+	taskTCB->id = 999999;
+	TaskNode *new = (TaskNode *)malloc(sizeof(TaskNode));
+	new->taskTCB = taskTCB;
+	new->next = NULL;
+
+	return new;
+}
+
+static void idleTask() {
+	for (;;) {
+		__asm volatile("wfi");
 	}
 }
