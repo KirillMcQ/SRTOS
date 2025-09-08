@@ -22,6 +22,7 @@ typedef struct
 	uint32_t *sp;
 	uint32_t priority;
 	uint32_t id;
+	uint32_t delayedUntil;
 } TCB;
 
 typedef struct
@@ -43,6 +44,7 @@ void SVC_Handler();
 void setPendSVPending();
 void startScheduler();
 
-void taskYield();
+void taskYield(); // TODO: This shouldn't work right now. Fix later.
+void taskDelay(uint32_t ticksToDelay);
 
 #endif
