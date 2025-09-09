@@ -7,7 +7,7 @@ uint32_t task2Stack[STACK_SIZE];
 TCB *task1TCB;
 TCB *task2TCB;
 TaskNode *task1Node;
-TasNode *task2Node;
+TaskNode *task2Node;
 
 // Blinking LED tasks
 void task1_blueLED()

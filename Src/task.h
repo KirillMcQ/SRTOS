@@ -35,7 +35,7 @@ extern volatile uint32_t msTicks;
 extern TaskNode *readyTasksList[MAX_PRIORITIES]; // Every element represents the head of a Linked List for that priority level
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void));
-STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int);
+STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode);
 
 void SysTick_Handler();
 void PendSV_Handler();
