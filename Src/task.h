@@ -32,7 +32,7 @@ typedef struct
 } TaskNode;
 
 extern volatile uint32_t msTicks;
-extern TaskNode *readyTasksList[MAX_PRIORITIES]; // Every element represents the head of a Linked List for that priority level
+extern TaskNode *readyTasksList[MAX_PRIORITIES];
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void));
 STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode);

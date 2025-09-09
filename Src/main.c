@@ -9,7 +9,6 @@ TCB task2TCB;
 TaskNode task1Node;
 TaskNode task2Node;
 
-// Blinking LED tasks
 void task1_blueLED()
 {
 	for (;;)

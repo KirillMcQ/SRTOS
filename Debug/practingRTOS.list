@@ -7,45 +7,45 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         00000870  08000198  08000198  00001198  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       00000000  08000a08  08000a10  00001a10  2**0
+  2 .rodata       00000000  08000a08  08000a08  00002008  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  3 .ARM.extab    00000000  08000a08  08000a08  00001a10  2**0
+  3 .ARM.extab    00000000  08000a08  08000a08  00002008  2**0
                   CONTENTS, READONLY
-  4 .ARM          00000000  08000a08  08000a08  00001a10  2**0
+  4 .ARM          00000000  08000a08  08000a08  00002008  2**0
                   CONTENTS, READONLY
-  5 .preinit_array 00000000  08000a08  08000a10  00001a10  2**0
+  5 .preinit_array 00000000  08000a08  08000a08  00002008  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   6 .init_array   00000004  08000a08  08000a08  00001a08  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   7 .fini_array   00000004  08000a0c  08000a0c  00001a0c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  8 .data         00000000  20000000  20000000  00001a10  2**0
+  8 .data         00000008  20000000  08000a10  00002000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000674  20000000  08000a10  00002000  2**2
+  9 .bss          00000684  20000008  08000a18  00002008  2**2
                   ALLOC
- 10 ._user_heap_stack 00000604  20000674  08000a10  00002674  2**0
+ 10 ._user_heap_stack 00000604  2000068c  08000a18  0000268c  2**0
                   ALLOC
- 11 .ARM.attributes 00000030  00000000  00000000  00001a10  2**0
+ 11 .ARM.attributes 00000030  00000000  00000000  00002008  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00000881  00000000  00000000  00001a40  2**0
+ 12 .debug_info   000008a3  00000000  00000000  00002038  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 000004ab  00000000  00000000  000022c1  2**0
+ 13 .debug_abbrev 000004ab  00000000  00000000  000028db  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000130  00000000  00000000  00002770  2**3
+ 14 .debug_aranges 00000130  00000000  00000000  00002d88  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000000d4  00000000  00000000  000028a0  2**0
+ 15 .debug_rnglists 000000d4  00000000  00000000  00002eb8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00001d33  00000000  00000000  00002974  2**0
+ 16 .debug_macro  00001d33  00000000  00000000  00002f8c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00001498  00000000  00000000  000046a7  2**0
+ 17 .debug_line   00001498  00000000  00000000  00004cbf  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000077b1  00000000  00000000  00005b3f  2**0
+ 18 .debug_str    000077d0  00000000  00000000  00006157  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  0000d2f0  2**0
+ 19 .comment      00000043  00000000  00000000  0000d927  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00000380  00000000  00000000  0000d334  2**2
+ 20 .debug_frame  00000380  00000000  00000000  0000d96c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000004a  00000000  00000000  0000d6b4  2**0
+ 21 .debug_line_str 0000004a  00000000  00000000  0000dcec  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -62,7 +62,7 @@ Disassembly of section .text:
  80001aa:	2301      	movs	r3, #1
  80001ac:	7023      	strb	r3, [r4, #0]
  80001ae:	bd10      	pop	{r4, pc}
- 80001b0:	20000000 	.word	0x20000000
+ 80001b0:	20000008 	.word	0x20000008
  80001b4:	00000000 	.word	0x00000000
  80001b8:	080009f0 	.word	0x080009f0
 
@@ -75,7 +75,7 @@ Disassembly of section .text:
  80001c6:	f3af 8000 	nop.w
  80001ca:	bd08      	pop	{r3, pc}
  80001cc:	00000000 	.word	0x00000000
- 80001d0:	20000004 	.word	0x20000004
+ 80001d0:	2000000c 	.word	0x2000000c
  80001d4:	080009f0 	.word	0x080009f0
 
 080001d8 <configureClock>:
@@ -395,14 +395,14 @@ int main(void)
  80003d6:	bf00      	nop
  80003d8:	e7fd      	b.n	80003d6 <main+0x2e>
  80003da:	bf00      	nop
- 80003dc:	2000043c 	.word	0x2000043c
- 80003e0:	2000041c 	.word	0x2000041c
+ 80003dc:	20000444 	.word	0x20000444
+ 80003e0:	20000424 	.word	0x20000424
  80003e4:	08000369 	.word	0x08000369
- 80003e8:	2000001c 	.word	0x2000001c
- 80003ec:	20000444 	.word	0x20000444
- 80003f0:	2000042c 	.word	0x2000042c
+ 80003e8:	20000024 	.word	0x20000024
+ 80003ec:	2000044c 	.word	0x2000044c
+ 80003f0:	20000434 	.word	0x20000434
  80003f4:	08000389 	.word	0x08000389
- 80003f8:	2000021c 	.word	0x2000021c
+ 80003f8:	20000224 	.word	0x20000224
 
 080003fc <initTaskStackFrame>:
 static TaskNode *prvIdleTask;
@@ -561,7 +561,7 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
  800050a:	3710      	adds	r7, #16
  800050c:	46bd      	mov	sp, r7
  800050e:	bd80      	pop	{r7, pc}
- 8000510:	2000045c 	.word	0x2000045c
+ 8000510:	20000464 	.word	0x20000464
 
 08000514 <SysTick_Handler>:
 
@@ -668,9 +668,9 @@ void SysTick_Handler()
  8000592:	3708      	adds	r7, #8
  8000594:	46bd      	mov	sp, r7
  8000596:	bd80      	pop	{r7, pc}
- 8000598:	2000044c 	.word	0x2000044c
- 800059c:	20000450 	.word	0x20000450
- 80005a0:	20000460 	.word	0x20000460
+ 8000598:	20000454 	.word	0x20000454
+ 800059c:	20000458 	.word	0x20000458
+ 80005a0:	20000468 	.word	0x20000468
 
 080005a4 <PendSV_Handler>:
 
@@ -732,8 +732,8 @@ void PendSV_Handler()
  80005e8:	46bd      	mov	sp, r7
  80005ea:	f85d 7b04 	ldr.w	r7, [sp], #4
  80005ee:	4770      	bx	lr
- 80005f0:	20000450 	.word	0x20000450
- 80005f4:	20000460 	.word	0x20000460
+ 80005f0:	20000458 	.word	0x20000458
+ 80005f4:	20000468 	.word	0x20000468
 
 080005f8 <SVC_Handler>:
 
@@ -769,7 +769,7 @@ void SVC_Handler()
  8000620:	46bd      	mov	sp, r7
  8000622:	f85d 7b04 	ldr.w	r7, [sp], #4
  8000626:	4770      	bx	lr
- 8000628:	20000450 	.word	0x20000450
+ 8000628:	20000458 	.word	0x20000458
 
 0800062c <startScheduler>:
 
@@ -793,8 +793,8 @@ void startScheduler()
  8000646:	bf00      	nop
  8000648:	bd80      	pop	{r7, pc}
  800064a:	bf00      	nop
- 800064c:	20000670 	.word	0x20000670
- 8000650:	20000450 	.word	0x20000450
+ 800064c:	20000688 	.word	0x20000688
+ 8000650:	20000458 	.word	0x20000458
 
 08000654 <setPendSVPending>:
 
@@ -967,10 +967,10 @@ void taskDelay(uint32_t ticksToDelay)
  800074a:	46bd      	mov	sp, r7
  800074c:	bd80      	pop	{r7, pc}
  800074e:	bf00      	nop
- 8000750:	20000450 	.word	0x20000450
- 8000754:	2000044c 	.word	0x2000044c
- 8000758:	20000454 	.word	0x20000454
- 800075c:	20000460 	.word	0x20000460
+ 8000750:	20000458 	.word	0x20000458
+ 8000754:	20000454 	.word	0x20000454
+ 8000758:	2000045c 	.word	0x2000045c
+ 800075c:	20000468 	.word	0x20000468
 
 08000760 <prvAddTaskNodeToReadyList>:
 
@@ -1052,7 +1052,7 @@ static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
  80007bc:	46bd      	mov	sp, r7
  80007be:	f85d 7b04 	ldr.w	r7, [sp], #4
  80007c2:	4770      	bx	lr
- 80007c4:	20000454 	.word	0x20000454
+ 80007c4:	2000045c 	.word	0x2000045c
 
 080007c8 <prvGetHighestTaskReadyToExecute>:
 
@@ -1102,8 +1102,8 @@ static TaskNode *prvGetHighestTaskReadyToExecute()
  8000800:	f85d 7b04 	ldr.w	r7, [sp], #4
  8000804:	4770      	bx	lr
  8000806:	bf00      	nop
- 8000808:	20000454 	.word	0x20000454
- 800080c:	20000670 	.word	0x20000670
+ 8000808:	2000045c 	.word	0x2000045c
+ 800080c:	20000688 	.word	0x20000688
 
 08000810 <prvAddTaskToBlockedList>:
 
@@ -1161,7 +1161,7 @@ static void prvAddTaskToBlockedList(TaskNode *task)
  800084c:	46bd      	mov	sp, r7
  800084e:	f85d 7b04 	ldr.w	r7, [sp], #4
  8000852:	4770      	bx	lr
- 8000854:	20000464 	.word	0x20000464
+ 8000854:	2000046c 	.word	0x2000046c
 
 08000858 <prvUnblockDelayedTasksReadyToUnblock>:
 
@@ -1281,8 +1281,8 @@ static void prvUnblockDelayedTasksReadyToUnblock()
  80008de:	3710      	adds	r7, #16
  80008e0:	46bd      	mov	sp, r7
  80008e2:	bd80      	pop	{r7, pc}
- 80008e4:	20000464 	.word	0x20000464
- 80008e8:	2000044c 	.word	0x2000044c
+ 80008e4:	2000046c 	.word	0x2000046c
+ 80008e8:	20000454 	.word	0x20000454
 
 080008ec <createIdleTask>:
 
@@ -1290,7 +1290,7 @@ static TaskNode *createIdleTask()
 {
  80008ec:	b598      	push	{r3, r4, r7, lr}
  80008ee:	af00      	add	r7, sp, #0
-	idleTaskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
+	idleTaskTCBptr->sp = initTaskStackFrame(idleTaskStack, &idleTask);
  80008f0:	4b11      	ldr	r3, [pc, #68]	@ (8000938 <createIdleTask+0x4c>)
  80008f2:	681c      	ldr	r4, [r3, #0]
  80008f4:	4911      	ldr	r1, [pc, #68]	@ (800093c <createIdleTask+0x50>)
@@ -1298,24 +1298,24 @@ static TaskNode *createIdleTask()
  80008f8:	f7ff fd80 	bl	80003fc <initTaskStackFrame>
  80008fc:	4603      	mov	r3, r0
  80008fe:	6023      	str	r3, [r4, #0]
-	idleTaskTCB->priority = 0;
+	idleTaskTCBptr->priority = 0;
  8000900:	4b0d      	ldr	r3, [pc, #52]	@ (8000938 <createIdleTask+0x4c>)
  8000902:	681b      	ldr	r3, [r3, #0]
  8000904:	2200      	movs	r2, #0
  8000906:	605a      	str	r2, [r3, #4]
-	idleTaskTCB->id = prvCurTaskIDNum;
+	idleTaskTCBptr->id = prvCurTaskIDNum;
  8000908:	4b0b      	ldr	r3, [pc, #44]	@ (8000938 <createIdleTask+0x4c>)
  800090a:	681b      	ldr	r3, [r3, #0]
  800090c:	4a0d      	ldr	r2, [pc, #52]	@ (8000944 <createIdleTask+0x58>)
  800090e:	6812      	ldr	r2, [r2, #0]
  8000910:	609a      	str	r2, [r3, #8]
-	idleTaskNode->taskTCB = idleTaskTCB;
+	idleTaskNodePtr->taskTCB = idleTaskTCBptr;
  8000912:	4b0d      	ldr	r3, [pc, #52]	@ (8000948 <createIdleTask+0x5c>)
  8000914:	681b      	ldr	r3, [r3, #0]
  8000916:	4a08      	ldr	r2, [pc, #32]	@ (8000938 <createIdleTask+0x4c>)
  8000918:	6812      	ldr	r2, [r2, #0]
  800091a:	601a      	str	r2, [r3, #0]
-	idleTaskNode->next = NULL;
+	idleTaskNodePtr->next = NULL;
  800091c:	4b0a      	ldr	r3, [pc, #40]	@ (8000948 <createIdleTask+0x5c>)
  800091e:	681b      	ldr	r3, [r3, #0]
  8000920:	2200      	movs	r2, #0
@@ -1327,18 +1327,18 @@ static TaskNode *createIdleTask()
  800092a:	4a06      	ldr	r2, [pc, #24]	@ (8000944 <createIdleTask+0x58>)
  800092c:	6013      	str	r3, [r2, #0]
 
-	return idleTaskNode;
+	return idleTaskNodePtr;
  800092e:	4b06      	ldr	r3, [pc, #24]	@ (8000948 <createIdleTask+0x5c>)
  8000930:	681b      	ldr	r3, [r3, #0]
 }
  8000932:	4618      	mov	r0, r3
  8000934:	bd98      	pop	{r3, r4, r7, pc}
  8000936:	bf00      	nop
- 8000938:	20000668 	.word	0x20000668
+ 8000938:	20000000 	.word	0x20000000
  800093c:	0800094d 	.word	0x0800094d
- 8000940:	20000468 	.word	0x20000468
- 8000944:	2000045c 	.word	0x2000045c
- 8000948:	2000066c 	.word	0x2000066c
+ 8000940:	20000470 	.word	0x20000470
+ 8000944:	20000464 	.word	0x20000464
+ 8000948:	20000004 	.word	0x20000004
 
 0800094c <idleTask>:
 
@@ -1441,13 +1441,13 @@ LoopForever:
   ldr r0, =_sdata
  8000990:	20000000 	.word	0x20000000
   ldr r1, =_edata
- 8000994:	20000000 	.word	0x20000000
+ 8000994:	20000008 	.word	0x20000008
   ldr r2, =_sidata
  8000998:	08000a10 	.word	0x08000a10
   ldr r2, =_sbss
- 800099c:	20000000 	.word	0x20000000
+ 800099c:	20000008 	.word	0x20000008
   ldr r4, =_ebss
- 80009a0:	20000674 	.word	0x20000674
+ 80009a0:	2000068c 	.word	0x2000068c
 
 080009a4 <ADC_IRQHandler>:
  * @retval : None

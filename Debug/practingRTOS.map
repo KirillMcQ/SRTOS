@@ -887,79 +887,83 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
 .rel.dyn        0x08000a10        0x0
  .rel.iplt      0x08000a10        0x0 /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
 
-.data           0x20000000        0x0 load address 0x08000a10
+.data           0x20000000        0x8 load address 0x08000a10
                 0x20000000                        . = ALIGN (0x4)
                 0x20000000                        _sdata = .
  *(.data)
  *(.data*)
+ .data.idleTaskTCBptr
+                0x20000000        0x4 ./Src/task.o
+ .data.idleTaskNodePtr
+                0x20000004        0x4 ./Src/task.o
  *(.RamFunc)
  *(.RamFunc*)
-                0x20000000                        . = ALIGN (0x4)
-                0x20000000                        _edata = .
+                0x20000008                        . = ALIGN (0x4)
+                0x20000008                        _edata = .
 
-.igot.plt       0x20000000        0x0 load address 0x08000a10
- .igot.plt      0x20000000        0x0 /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
-                0x20000000                        . = ALIGN (0x4)
+.igot.plt       0x20000008        0x0 load address 0x08000a18
+ .igot.plt      0x20000008        0x0 /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+                0x20000008                        . = ALIGN (0x4)
 
-.bss            0x20000000      0x674 load address 0x08000a10
-                0x20000000                        _sbss = .
-                0x20000000                        __bss_start__ = _sbss
+.bss            0x20000008      0x684 load address 0x08000a18
+                0x20000008                        _sbss = .
+                0x20000008                        __bss_start__ = _sbss
  *(.bss)
- .bss           0x20000000       0x1c /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+ .bss           0x20000008       0x1c /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
  *(.bss*)
  .bss.task1Stack
-                0x2000001c      0x200 ./Src/main.o
-                0x2000001c                task1Stack
+                0x20000024      0x200 ./Src/main.o
+                0x20000024                task1Stack
  .bss.task2Stack
-                0x2000021c      0x200 ./Src/main.o
-                0x2000021c                task2Stack
- .bss.task1TCB  0x2000041c       0x10 ./Src/main.o
-                0x2000041c                task1TCB
- .bss.task2TCB  0x2000042c       0x10 ./Src/main.o
-                0x2000042c                task2TCB
+                0x20000224      0x200 ./Src/main.o
+                0x20000224                task2Stack
+ .bss.task1TCB  0x20000424       0x10 ./Src/main.o
+                0x20000424                task1TCB
+ .bss.task2TCB  0x20000434       0x10 ./Src/main.o
+                0x20000434                task2TCB
  .bss.task1Node
-                0x2000043c        0x8 ./Src/main.o
-                0x2000043c                task1Node
- .bss.task2Node
                 0x20000444        0x8 ./Src/main.o
-                0x20000444                task2Node
- .bss.msTicks   0x2000044c        0x4 ./Src/task.o
-                0x2000044c                msTicks
- .bss.curTask   0x20000450        0x4 ./Src/task.o
-                0x20000450                curTask
+                0x20000444                task1Node
+ .bss.task2Node
+                0x2000044c        0x8 ./Src/main.o
+                0x2000044c                task2Node
+ .bss.msTicks   0x20000454        0x4 ./Src/task.o
+                0x20000454                msTicks
+ .bss.curTask   0x20000458        0x4 ./Src/task.o
+                0x20000458                curTask
  .bss.readyTasksList
-                0x20000454        0x8 ./Src/task.o
-                0x20000454                readyTasksList
+                0x2000045c        0x8 ./Src/task.o
+                0x2000045c                readyTasksList
  .bss.prvCurTaskIDNum
-                0x2000045c        0x4 ./Src/task.o
- .bss.prvNextTask
-                0x20000460        0x4 ./Src/task.o
- .bss.prvBlockedTasks
                 0x20000464        0x4 ./Src/task.o
+ .bss.prvNextTask
+                0x20000468        0x4 ./Src/task.o
+ .bss.prvBlockedTasks
+                0x2000046c        0x4 ./Src/task.o
  .bss.idleTaskStack
-                0x20000468      0x200 ./Src/task.o
+                0x20000470      0x200 ./Src/task.o
  .bss.idleTaskTCB
-                0x20000668        0x4 ./Src/task.o
+                0x20000670       0x10 ./Src/task.o
  .bss.idleTaskNode
-                0x2000066c        0x4 ./Src/task.o
+                0x20000680        0x8 ./Src/task.o
  .bss.prvIdleTask
-                0x20000670        0x4 ./Src/task.o
+                0x20000688        0x4 ./Src/task.o
  *(COMMON)
-                0x20000674                        . = ALIGN (0x4)
-                0x20000674                        _ebss = .
-                0x20000674                        __bss_end__ = _ebss
+                0x2000068c                        . = ALIGN (0x4)
+                0x2000068c                        _ebss = .
+                0x2000068c                        __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x20000674      0x604 load address 0x08000a10
-                0x20000678                        . = ALIGN (0x8)
- *fill*         0x20000674        0x4 
+                0x2000068c      0x604 load address 0x08000a18
+                0x20000690                        . = ALIGN (0x8)
+ *fill*         0x2000068c        0x4 
                 [!provide]                        PROVIDE (end = .)
-                0x20000678                        PROVIDE (_end = .)
-                0x20000878                        . = (. + _Min_Heap_Size)
- *fill*         0x20000678      0x200 
-                0x20000c78                        . = (. + _Min_Stack_Size)
- *fill*         0x20000878      0x400 
-                0x20000c78                        . = ALIGN (0x8)
+                0x20000690                        PROVIDE (_end = .)
+                0x20000890                        . = (. + _Min_Heap_Size)
+ *fill*         0x20000690      0x200 
+                0x20000c90                        . = (. + _Min_Stack_Size)
+ *fill*         0x20000890      0x400 
+                0x20000c90                        . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
@@ -991,11 +995,11 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libm.a
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/libgcc.a
 
-.debug_info     0x00000000      0x881
+.debug_info     0x00000000      0x8a3
  .debug_info    0x00000000       0xf9 ./Src/config.o
  .debug_info    0x000000f9      0x24d ./Src/main.o
- .debug_info    0x00000346      0x50b ./Src/task.o
- .debug_info    0x00000851       0x30 ./Startup/startup_stm32f411vetx.o
+ .debug_info    0x00000346      0x52d ./Src/task.o
+ .debug_info    0x00000873       0x30 ./Startup/startup_stm32f411vetx.o
 
 .debug_abbrev   0x00000000      0x4ab
  .debug_abbrev  0x00000000       0x6b ./Src/config.o
@@ -1062,12 +1066,12 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_line    0x00000b6f      0x8ae ./Src/task.o
  .debug_line    0x0000141d       0x7b ./Startup/startup_stm32f411vetx.o
 
-.debug_str      0x00000000     0x77b1
- .debug_str     0x00000000     0x77b1 ./Src/config.o
+.debug_str      0x00000000     0x77d0
+ .debug_str     0x00000000     0x77d0 ./Src/config.o
                                0x75a3 (size before relaxing)
- .debug_str     0x000077b1     0x76a3 ./Src/main.o
- .debug_str     0x000077b1     0x76ef ./Src/task.o
- .debug_str     0x000077b1       0x66 ./Startup/startup_stm32f411vetx.o
+ .debug_str     0x000077d0     0x76a3 ./Src/main.o
+ .debug_str     0x000077d0     0x770e ./Src/task.o
+ .debug_str     0x000077d0       0x66 ./Startup/startup_stm32f411vetx.o
 
 .comment        0x00000000       0x43
  .comment       0x00000000       0x43 ./Src/config.o

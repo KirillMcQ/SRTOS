@@ -9,8 +9,10 @@ static uint32_t prvCurTaskIDNum = 0;
 static TaskNode *prvNextTask = NULL;
 static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currently, the only way to block is to be delayed)
 static uint32_t idleTaskStack[STACK_SIZE];
-static TCB *idleTaskTCB;
-static TaskNode *idleTaskNode;
+static TCB idleTaskTCB;
+static TCB *idleTaskTCBptr = &idleTaskTCB;
+static TaskNode idleTaskNode;
+static TaskNode *idleTaskNodePtr = &idleTaskNode;
 
 // File-scoped private function headers
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
@@ -183,7 +185,6 @@ void taskDelay(uint32_t ticksToDelay)
 	// Check if curTask is the head of the priority
 	if (cur->taskTCB->id == curTaskID)
 	{
-		// We know there is more than one task, just make the new head the next task
 		readyTasksList[curTaskPriority] = curTask->next;
 
 		prvNextTask = prvGetHighestTaskReadyToExecute();
@@ -326,14 +327,14 @@ static void prvUnblockDelayedTasksReadyToUnblock()
 
 static TaskNode *createIdleTask()
 {
-	idleTaskTCB->sp = initTaskStackFrame(idleTaskStack, &idleTask);
-	idleTaskTCB->priority = 0;
-	idleTaskTCB->id = prvCurTaskIDNum;
-	idleTaskNode->taskTCB = idleTaskTCB;
-	idleTaskNode->next = NULL;
+	idleTaskTCBptr->sp = initTaskStackFrame(idleTaskStack, &idleTask);
+	idleTaskTCBptr->priority = 0;
+	idleTaskTCBptr->id = prvCurTaskIDNum;
+	idleTaskNodePtr->taskTCB = idleTaskTCBptr;
+	idleTaskNodePtr->next = NULL;
 	prvCurTaskIDNum++;
 
-	return idleTaskNode;
+	return idleTaskNodePtr;
 }
 
 static void idleTask()
