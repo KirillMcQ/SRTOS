@@ -14,7 +14,7 @@ void task1_blueLED()
 	for (;;)
 	{
 		GPIOD_ODR ^= (1 << 15);
-		taskDelay(500);
+		taskDelay(1000);
 	}
 }
 

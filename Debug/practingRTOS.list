@@ -312,10 +312,10 @@ void configureAll()
  8000366:	bd80      	pop	{r7, pc}
 
 08000368 <task1_blueLED>:
+TCB task2TCB;
 TaskNode task1Node;
 TaskNode task2Node;
 
-// Blinking LED tasks
 void task1_blueLED()
 {
  8000368:	b580      	push	{r7, lr}
@@ -328,8 +328,8 @@ void task1_blueLED()
  8000370:	4a04      	ldr	r2, [pc, #16]	@ (8000384 <task1_blueLED+0x1c>)
  8000372:	f483 4300 	eor.w	r3, r3, #32768	@ 0x8000
  8000376:	6013      	str	r3, [r2, #0]
-		taskDelay(500);
- 8000378:	f44f 70fa 	mov.w	r0, #500	@ 0x1f4
+		taskDelay(1000);
+ 8000378:	f44f 707a 	mov.w	r0, #1000	@ 0x3e8
  800037c:	f000 f97a 	bl	8000674 <taskDelay>
 		GPIOD_ODR ^= (1 << 15);
  8000380:	bf00      	nop
@@ -897,7 +897,6 @@ void taskDelay(uint32_t ticksToDelay)
  80006e2:	429a      	cmp	r2, r3
  80006e4:	d118      	bne.n	8000718 <taskDelay+0xa4>
 	{
-		// We know there is more than one task, just make the new head the next task
 		readyTasksList[curTaskPriority] = curTask->next;
  80006e6:	4b1a      	ldr	r3, [pc, #104]	@ (8000750 <taskDelay+0xdc>)
  80006e8:	681b      	ldr	r3, [r3, #0]
