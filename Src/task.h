@@ -25,11 +25,13 @@ typedef struct
 	uint32_t delayedUntil;
 } TCB;
 
-typedef struct
+typedef struct TaskNode TaskNode;
+
+struct TaskNode
 {
 	TCB *taskTCB;
-	struct TaskNode *next;
-} TaskNode;
+	TaskNode *next;
+};
 
 extern volatile uint32_t msTicks;
 extern TaskNode *readyTasksList[MAX_PRIORITIES];
