@@ -113,7 +113,7 @@ void PendSV_Handler()
 
 	curTask->taskTCB->sp = (uint32_t *)spToSave;
 
-	uint32_t nextSP = prvNextTask->taskTCB->sp;
+	uint32_t nextSP = (uint32_t) prvNextTask->taskTCB->sp;
 
 	curTask = prvNextTask;
 
@@ -132,7 +132,7 @@ void PendSV_Handler()
 void SVC_Handler()
 {
 	TCB *tcbToStart = curTask->taskTCB;
-	uint32_t spToStart = tcbToStart->sp;
+	uint32_t spToStart = (uint32_t) tcbToStart->sp;
 
 	__asm volatile(
 			"ldr r0, %[sp]\n"

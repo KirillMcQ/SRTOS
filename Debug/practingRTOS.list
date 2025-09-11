@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00002008  2**0
                   CONTENTS, READONLY
- 12 .debug_info   000008a3  00000000  00000000  00002038  2**0
+ 12 .debug_info   0000089f  00000000  00000000  00002038  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 000004ab  00000000  00000000  000028db  2**0
+ 13 .debug_abbrev 000004b7  00000000  00000000  000028d7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000130  00000000  00000000  00002d88  2**3
+ 14 .debug_aranges 00000130  00000000  00000000  00002d90  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000000d4  00000000  00000000  00002eb8  2**0
+ 15 .debug_rnglists 000000d4  00000000  00000000  00002ec0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00001d33  00000000  00000000  00002f8c  2**0
+ 16 .debug_macro  00001d33  00000000  00000000  00002f94  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00001498  00000000  00000000  00004cbf  2**0
+ 17 .debug_line   00001498  00000000  00000000  00004cc7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000077d0  00000000  00000000  00006157  2**0
+ 18 .debug_str    000077d0  00000000  00000000  0000615f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  0000d927  2**0
+ 19 .comment      00000043  00000000  00000000  0000d92f  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00000380  00000000  00000000  0000d96c  2**2
+ 20 .debug_frame  00000380  00000000  00000000  0000d974  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000004a  00000000  00000000  0000dcec  2**0
+ 21 .debug_line_str 0000004a  00000000  00000000  0000dcf4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -101,13 +101,13 @@ void configureClock()
  80001f2:	2b00      	cmp	r3, #0
  80001f4:	d0f9      	beq.n	80001ea <configureClock+0x12>
 		;
-	RCC_CFGR &= ~(1 << 0);
+	RCC_CFGR &= ~(1U << 0);
  80001f6:	4b10      	ldr	r3, [pc, #64]	@ (8000238 <configureClock+0x60>)
  80001f8:	681b      	ldr	r3, [r3, #0]
  80001fa:	4a0f      	ldr	r2, [pc, #60]	@ (8000238 <configureClock+0x60>)
  80001fc:	f023 0301 	bic.w	r3, r3, #1
  8000200:	6013      	str	r3, [r2, #0]
-	RCC_CFGR &= ~(1 << 1);
+	RCC_CFGR &= ~(1U << 1);
  8000202:	4b0d      	ldr	r3, [pc, #52]	@ (8000238 <configureClock+0x60>)
  8000204:	681b      	ldr	r3, [r3, #0]
  8000206:	4a0c      	ldr	r2, [pc, #48]	@ (8000238 <configureClock+0x60>)
@@ -119,7 +119,9 @@ void configureClock()
  8000212:	4a09      	ldr	r2, [pc, #36]	@ (8000238 <configureClock+0x60>)
  8000214:	f043 0301 	orr.w	r3, r3, #1
  8000218:	6013      	str	r3, [r2, #0]
-	while ((RCC_CFGR & (0b11 << 2)) != (0b01 << 2))
+	// 0x3 -> 0b11
+	// 0x1 -> 0b01
+	while ((RCC_CFGR & (0x3 << 2)) != (0x1 << 2))
  800021a:	bf00      	nop
  800021c:	4b06      	ldr	r3, [pc, #24]	@ (8000238 <configureClock+0x60>)
  800021e:	681b      	ldr	r3, [r3, #0]
@@ -156,7 +158,7 @@ void configureBlueLED()
  8000250:	4a0b      	ldr	r2, [pc, #44]	@ (8000280 <configureBlueLED+0x44>)
  8000252:	f023 4300 	bic.w	r3, r3, #2147483648	@ 0x80000000
  8000256:	6013      	str	r3, [r2, #0]
-	GPIOD_MODER &= ~(1 << 30);
+	GPIOD_MODER &= ~(1U << 30);
  8000258:	4b09      	ldr	r3, [pc, #36]	@ (8000280 <configureBlueLED+0x44>)
  800025a:	681b      	ldr	r3, [r3, #0]
  800025c:	4a08      	ldr	r2, [pc, #32]	@ (8000280 <configureBlueLED+0x44>)
@@ -185,13 +187,13 @@ void configureGreenLED()
  8000286:	af00      	add	r7, sp, #0
 	// Clock already enabled, since blue LED is also on GPIOD
 	// Green LED: PD12
-	GPIOD_MODER &= ~(1 << 24);
+	GPIOD_MODER &= ~(1U << 24);
  8000288:	4b0b      	ldr	r3, [pc, #44]	@ (80002b8 <configureGreenLED+0x34>)
  800028a:	681b      	ldr	r3, [r3, #0]
  800028c:	4a0a      	ldr	r2, [pc, #40]	@ (80002b8 <configureGreenLED+0x34>)
  800028e:	f023 7380 	bic.w	r3, r3, #16777216	@ 0x1000000
  8000292:	6013      	str	r3, [r2, #0]
-	GPIOD_MODER &= ~(1 << 25);
+	GPIOD_MODER &= ~(1U << 25);
  8000294:	4b08      	ldr	r3, [pc, #32]	@ (80002b8 <configureGreenLED+0x34>)
  8000296:	681b      	ldr	r3, [r3, #0]
  8000298:	4a07      	ldr	r2, [pc, #28]	@ (80002b8 <configureGreenLED+0x34>)
@@ -218,13 +220,13 @@ void configureOrangeLED()
  80002bc:	b480      	push	{r7}
  80002be:	af00      	add	r7, sp, #0
 	// Orange LED: PD13
-	GPIOD_MODER &= ~(1 << 26);
+	GPIOD_MODER &= ~(1U << 26);
  80002c0:	4b0b      	ldr	r3, [pc, #44]	@ (80002f0 <configureOrangeLED+0x34>)
  80002c2:	681b      	ldr	r3, [r3, #0]
  80002c4:	4a0a      	ldr	r2, [pc, #40]	@ (80002f0 <configureOrangeLED+0x34>)
  80002c6:	f023 6380 	bic.w	r3, r3, #67108864	@ 0x4000000
  80002ca:	6013      	str	r3, [r2, #0]
-	GPIOD_MODER &= ~(1 << 27);
+	GPIOD_MODER &= ~(1U << 27);
  80002cc:	4b08      	ldr	r3, [pc, #32]	@ (80002f0 <configureOrangeLED+0x34>)
  80002ce:	681b      	ldr	r3, [r3, #0]
  80002d0:	4a07      	ldr	r2, [pc, #28]	@ (80002f0 <configureOrangeLED+0x34>)
@@ -250,7 +252,7 @@ void configureSystickInterrupts()
 {
  80002f4:	b480      	push	{r7}
  80002f6:	af00      	add	r7, sp, #0
-	SYSTICK_CSR &= ~(1 << 0);			// Disable timer
+	SYSTICK_CSR &= ~(1U << 0);			// Disable timer
  80002f8:	4b11      	ldr	r3, [pc, #68]	@ (8000340 <configureSystickInterrupts+0x4c>)
  80002fa:	681b      	ldr	r3, [r3, #0]
  80002fc:	4a10      	ldr	r2, [pc, #64]	@ (8000340 <configureSystickInterrupts+0x4c>)
@@ -698,7 +700,7 @@ void PendSV_Handler()
  80005bc:	687a      	ldr	r2, [r7, #4]
  80005be:	601a      	str	r2, [r3, #0]
 
-	uint32_t nextSP = prvNextTask->taskTCB->sp;
+	uint32_t nextSP = (uint32_t) prvNextTask->taskTCB->sp;
  80005c0:	4b0c      	ldr	r3, [pc, #48]	@ (80005f4 <PendSV_Handler+0x50>)
  80005c2:	681b      	ldr	r3, [r3, #0]
  80005c4:	681b      	ldr	r3, [r3, #0]
@@ -747,7 +749,7 @@ void SVC_Handler()
  8000600:	681b      	ldr	r3, [r3, #0]
  8000602:	681b      	ldr	r3, [r3, #0]
  8000604:	607b      	str	r3, [r7, #4]
-	uint32_t spToStart = tcbToStart->sp;
+	uint32_t spToStart = (uint32_t) tcbToStart->sp;
  8000606:	687b      	ldr	r3, [r7, #4]
  8000608:	681b      	ldr	r3, [r3, #0]
  800060a:	603b      	str	r3, [r7, #0]

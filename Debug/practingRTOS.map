@@ -267,7 +267,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x18a ./Src/syscalls.o
  .debug_macro   0x00000000       0x16 ./Src/syscalls.o
  .debug_macro   0x00000000       0xce ./Src/syscalls.o
- .debug_line    0x00000000      0x840 ./Src/syscalls.o
+ .debug_line    0x00000000      0x847 ./Src/syscalls.o
  .debug_str     0x00000000     0x99dc ./Src/syscalls.o
  .comment       0x00000000       0x44 ./Src/syscalls.o
  .debug_frame   0x00000000      0x2ac ./Src/syscalls.o
@@ -995,17 +995,17 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libm.a
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/libgcc.a
 
-.debug_info     0x00000000      0x8a3
+.debug_info     0x00000000      0x89f
  .debug_info    0x00000000       0xf9 ./Src/config.o
- .debug_info    0x000000f9      0x24d ./Src/main.o
- .debug_info    0x00000346      0x52d ./Src/task.o
- .debug_info    0x00000873       0x30 ./Startup/startup_stm32f411vetx.o
+ .debug_info    0x000000f9      0x24b ./Src/main.o
+ .debug_info    0x00000344      0x52b ./Src/task.o
+ .debug_info    0x0000086f       0x30 ./Startup/startup_stm32f411vetx.o
 
-.debug_abbrev   0x00000000      0x4ab
+.debug_abbrev   0x00000000      0x4b7
  .debug_abbrev  0x00000000       0x6b ./Src/config.o
- .debug_abbrev  0x0000006b      0x15b ./Src/main.o
- .debug_abbrev  0x000001c6      0x2c1 ./Src/task.o
- .debug_abbrev  0x00000487       0x24 ./Startup/startup_stm32f411vetx.o
+ .debug_abbrev  0x0000006b      0x161 ./Src/main.o
+ .debug_abbrev  0x000001cc      0x2c7 ./Src/task.o
+ .debug_abbrev  0x00000493       0x24 ./Startup/startup_stm32f411vetx.o
 
 .debug_aranges  0x00000000      0x130
  .debug_aranges
