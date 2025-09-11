@@ -10,7 +10,9 @@ void configureClock()
 	RCC_CFGR &= ~(1U << 0);
 	RCC_CFGR &= ~(1U << 1);
 	RCC_CFGR |= (1 << 0);
-	while ((RCC_CFGR & (0b11 << 2)) != (0b01 << 2))
+	// 0x3 -> 0b11
+	// 0x1 -> 0b01
+	while ((RCC_CFGR & (0x3 << 2)) != (0x1 << 2))
 		;
 }
 
