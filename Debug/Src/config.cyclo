@@ -3,4 +3,5 @@
 ../Src/config.c:29:6:configureGreenLED	1
 ../Src/config.c:38:6:configureOrangeLED	1
 ../Src/config.c:46:6:configureSystickInterrupts	1
-../Src/config.c:56:6:configureAll	1
+../Src/config.c:56:6:configureInterruptPriorities	1
+../Src/config.c:67:6:configureAll	1
