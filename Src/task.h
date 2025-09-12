@@ -4,12 +4,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "kernel_config.h"
 
 #define GPIOD_START_ADDR 0x40020C00
 #define GPIOD_ODR *((volatile uint32_t *)(GPIOD_START_ADDR + 0x14))
 #define ICSR *((volatile uint32_t *)(0xE000ED04))
-#define STACK_SIZE 128
-#define MAX_PRIORITIES 2 // For now, only 2 priorities: 0 and 1
 
 typedef enum
 {
