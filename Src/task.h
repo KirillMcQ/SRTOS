@@ -5,10 +5,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "kernel_config.h"
+#include "mcu_registers.h"
 
-#define GPIOD_START_ADDR 0x40020C00
-#define GPIOD_ODR *((volatile uint32_t *)(GPIOD_START_ADDR + 0x14))
-#define ICSR *((volatile uint32_t *)(0xE000ED04))
 
 typedef enum
 {
