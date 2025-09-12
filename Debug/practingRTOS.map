@@ -137,7 +137,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x185 ./Src/main.o
  .debug_macro   0x00000000       0x16 ./Src/main.o
  .debug_macro   0x00000000       0x29 ./Src/main.o
- .debug_macro   0x00000000       0x3a ./Src/main.o
+ .debug_macro   0x00000000       0x4c ./Src/main.o
  .group         0x00000000        0xc ./Src/syscalls.o
  .group         0x00000000        0xc ./Src/syscalls.o
  .group         0x00000000        0xc ./Src/syscalls.o
@@ -364,6 +364,7 @@ Discarded input sections
  .group         0x00000000        0xc ./Src/task.o
  .group         0x00000000        0xc ./Src/task.o
  .group         0x00000000        0xc ./Src/task.o
+ .group         0x00000000        0xc ./Src/task.o
  .text          0x00000000        0x0 ./Src/task.o
  .data          0x00000000        0x0 ./Src/task.o
  .bss           0x00000000        0x0 ./Src/task.o
@@ -394,7 +395,8 @@ Discarded input sections
  .debug_macro   0x00000000      0x185 ./Src/task.o
  .debug_macro   0x00000000       0x16 ./Src/task.o
  .debug_macro   0x00000000       0x29 ./Src/task.o
- .debug_macro   0x00000000       0x22 ./Src/task.o
+ .debug_macro   0x00000000       0x16 ./Src/task.o
+ .debug_macro   0x00000000       0x4c ./Src/task.o
  .text          0x00000000       0x14 ./Startup/startup_stm32f411vetx.o
  .data          0x00000000        0x0 ./Startup/startup_stm32f411vetx.o
  .bss           0x00000000        0x0 ./Startup/startup_stm32f411vetx.o
@@ -1028,50 +1030,50 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_rnglists
                 0x000000bb       0x19 ./Startup/startup_stm32f411vetx.o
 
-.debug_macro    0x00000000     0x1d33
- .debug_macro   0x00000000      0x147 ./Src/config.o
- .debug_macro   0x00000147      0xae4 ./Src/config.o
- .debug_macro   0x00000c2b       0x22 ./Src/config.o
- .debug_macro   0x00000c4d       0x8e ./Src/config.o
- .debug_macro   0x00000cdb       0x51 ./Src/config.o
- .debug_macro   0x00000d2c      0x103 ./Src/config.o
- .debug_macro   0x00000e2f       0x6a ./Src/config.o
- .debug_macro   0x00000e99      0x1df ./Src/config.o
- .debug_macro   0x00001078      0x190 ./Src/config.o
- .debug_macro   0x00001208       0x2a ./Src/config.o
- .debug_macro   0x00001232       0x61 ./Src/config.o
- .debug_macro   0x00001293       0x43 ./Src/config.o
- .debug_macro   0x000012d6       0x34 ./Src/config.o
- .debug_macro   0x0000130a       0x16 ./Src/config.o
- .debug_macro   0x00001320       0x3c ./Src/config.o
- .debug_macro   0x0000135c      0x370 ./Src/config.o
- .debug_macro   0x000016cc       0x16 ./Src/config.o
- .debug_macro   0x000016e2       0x4a ./Src/config.o
- .debug_macro   0x0000172c       0x34 ./Src/config.o
- .debug_macro   0x00001760       0x10 ./Src/config.o
- .debug_macro   0x00001770       0x58 ./Src/config.o
- .debug_macro   0x000017c8       0x8e ./Src/config.o
- .debug_macro   0x00001856       0x1c ./Src/config.o
- .debug_macro   0x00001872      0x185 ./Src/config.o
- .debug_macro   0x000019f7       0x16 ./Src/config.o
- .debug_macro   0x00001a0d       0x29 ./Src/config.o
- .debug_macro   0x00001a36       0x3a ./Src/config.o
- .debug_macro   0x00001a70      0x15a ./Src/main.o
- .debug_macro   0x00001bca       0x22 ./Src/main.o
- .debug_macro   0x00001bec      0x147 ./Src/task.o
+.debug_macro    0x00000000     0x1d52
+ .debug_macro   0x00000000      0x14b ./Src/config.o
+ .debug_macro   0x0000014b      0xae4 ./Src/config.o
+ .debug_macro   0x00000c2f       0x22 ./Src/config.o
+ .debug_macro   0x00000c51       0x8e ./Src/config.o
+ .debug_macro   0x00000cdf       0x51 ./Src/config.o
+ .debug_macro   0x00000d30      0x103 ./Src/config.o
+ .debug_macro   0x00000e33       0x6a ./Src/config.o
+ .debug_macro   0x00000e9d      0x1df ./Src/config.o
+ .debug_macro   0x0000107c      0x190 ./Src/config.o
+ .debug_macro   0x0000120c       0x2a ./Src/config.o
+ .debug_macro   0x00001236       0x61 ./Src/config.o
+ .debug_macro   0x00001297       0x43 ./Src/config.o
+ .debug_macro   0x000012da       0x34 ./Src/config.o
+ .debug_macro   0x0000130e       0x16 ./Src/config.o
+ .debug_macro   0x00001324       0x3c ./Src/config.o
+ .debug_macro   0x00001360      0x370 ./Src/config.o
+ .debug_macro   0x000016d0       0x16 ./Src/config.o
+ .debug_macro   0x000016e6       0x4a ./Src/config.o
+ .debug_macro   0x00001730       0x34 ./Src/config.o
+ .debug_macro   0x00001764       0x10 ./Src/config.o
+ .debug_macro   0x00001774       0x58 ./Src/config.o
+ .debug_macro   0x000017cc       0x8e ./Src/config.o
+ .debug_macro   0x0000185a       0x1c ./Src/config.o
+ .debug_macro   0x00001876      0x185 ./Src/config.o
+ .debug_macro   0x000019fb       0x16 ./Src/config.o
+ .debug_macro   0x00001a11       0x29 ./Src/config.o
+ .debug_macro   0x00001a3a       0x4c ./Src/config.o
+ .debug_macro   0x00001a86      0x162 ./Src/main.o
+ .debug_macro   0x00001be8       0x16 ./Src/main.o
+ .debug_macro   0x00001bfe      0x154 ./Src/task.o
 
-.debug_line     0x00000000     0x1498
- .debug_line    0x00000000      0x618 ./Src/config.o
- .debug_line    0x00000618      0x557 ./Src/main.o
- .debug_line    0x00000b6f      0x8ae ./Src/task.o
- .debug_line    0x0000141d       0x7b ./Startup/startup_stm32f411vetx.o
+.debug_line     0x00000000     0x14f7
+ .debug_line    0x00000000      0x62b ./Src/config.o
+ .debug_line    0x0000062b      0x57d ./Src/main.o
+ .debug_line    0x00000ba8      0x8d4 ./Src/task.o
+ .debug_line    0x0000147c       0x7b ./Startup/startup_stm32f411vetx.o
 
-.debug_str      0x00000000     0x77d0
- .debug_str     0x00000000     0x77d0 ./Src/config.o
-                               0x75a3 (size before relaxing)
- .debug_str     0x000077d0     0x76a3 ./Src/main.o
- .debug_str     0x000077d0     0x770e ./Src/task.o
- .debug_str     0x000077d0       0x66 ./Startup/startup_stm32f411vetx.o
+.debug_str      0x00000000     0x77e9
+ .debug_str     0x00000000     0x77e9 ./Src/config.o
+                               0x761b (size before relaxing)
+ .debug_str     0x000077e9     0x76c7 ./Src/main.o
+ .debug_str     0x000077e9     0x78c0 ./Src/task.o
+ .debug_str     0x000077e9       0x66 ./Startup/startup_stm32f411vetx.o
 
 .comment        0x00000000       0x43
  .comment       0x00000000       0x43 ./Src/config.o
