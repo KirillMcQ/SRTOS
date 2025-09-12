@@ -11,6 +11,7 @@ void configureBlueLED();
 void configureGreenLED();
 void configureOrangeLED();
 void configureSystickInterrupts();
+void configureInterruptPriorities();
 void configureAll();
 
 #endif

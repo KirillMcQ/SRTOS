@@ -53,6 +53,17 @@ void configureSystickInterrupts()
 	SYSTICK_CSR |= (1 << 0);			// Enable Timer
 }
 
+void configureInterruptPriorities()
+{
+	// PendSV to the lowest priority (240 because only top 4 bits are used)
+	SHPR3 &= ~(0xFFU << PENDSV_PRIORITY_START_BIT);
+	SHPR3 |= (0xF0U << PENDSV_PRIORITY_START_BIT);
+
+	// SysTick to right above PendSV (224 because only top 4 bits are used)
+	SHPR3 &= ~(0xFFU << SYSTICK_PRIORITY_START_BIT);
+	SHPR3 |= (0xE0U << SYSTICK_PRIORITY_START_BIT);
+}
+
 void configureAll()
 {
 	configureClock();
@@ -60,4 +71,5 @@ void configureAll()
 	configureBlueLED();
 	configureGreenLED();
 	configureOrangeLED();
+	configureInterruptPriorities();
 }

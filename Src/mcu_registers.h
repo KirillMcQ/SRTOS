@@ -12,5 +12,8 @@
 #define SYSTICK_RELOAD *((volatile uint32_t *)(0xE000E014))
 #define SYSTICK_CURRENT *((volatile uint32_t *)(0xE000E018))
 #define ICSR *((volatile uint32_t *)(0xE000ED04))
+#define SHPR3 *((volatile uint32_t *)(0xE000ED20))
+#define PENDSV_PRIORITY_START_BIT 16
+#define SYSTICK_PRIORITY_START_BIT 24
 
 #endif
