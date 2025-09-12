@@ -1,20 +1,18 @@
 #include "task.h"
 
-volatile uint32_t msTicks = 0; // Overflows in ~49 days of concurrent running.
+volatile uint32_t msTicks = 0;
 TaskNode *curTask = NULL;
-TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL}; // All NULL initially
+TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL};
 
-// File-scoped private variables
 static uint32_t prvCurTaskIDNum = 0;
 static TaskNode *prvNextTask = NULL;
-static TaskNode *prvBlockedTasks = NULL; // Head of blocked tasks list (Currently, the only way to block is to be delayed)
+static TaskNode *prvBlockedTasks = NULL;
 static uint32_t idleTaskStack[STACK_SIZE];
 static TCB idleTaskTCB;
 static TCB *idleTaskTCBptr = &idleTaskTCB;
 static TaskNode idleTaskNode;
 static TaskNode *idleTaskNodePtr = &idleTaskNode;
 
-// File-scoped private function headers
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
 static void prvAddTaskToBlockedList(TaskNode *task);
