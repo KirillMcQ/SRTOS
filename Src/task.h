@@ -7,7 +7,6 @@
 #include "kernel_config.h"
 #include "mcu_registers.h"
 
-
 typedef enum
 {
 	STATUS_SUCCESS = 0,
