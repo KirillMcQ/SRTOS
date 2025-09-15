@@ -45,8 +45,10 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 
 STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode)
 {
-	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode) return STATUS_FAILURE;
-	if (priority >= MAX_PRIORITIES) return STATUS_FAILURE;
+	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode)
+		return STATUS_FAILURE;
+	if (priority >= MAX_PRIORITIES)
+		return STATUS_FAILURE;
 
 	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
 	userAllocatedTCB->priority = priority;
@@ -124,11 +126,10 @@ void PendSV_Handler()
 	uint32_t nextSP;
 	systemENTER_CRITICAL();
 	{
-		nextSP = (uint32_t) prvNextTask->taskTCB->sp;
+		nextSP = (uint32_t)prvNextTask->taskTCB->sp;
 		curTask = prvNextTask;
 	}
 	systemEXIT_CRITICAL();
-
 
 	__asm volatile(
 			"mov r2, %[nextSP]\n"
@@ -145,7 +146,7 @@ void PendSV_Handler()
 void SVC_Handler()
 {
 	TCB *tcbToStart = curTask->taskTCB;
-	uint32_t spToStart = (uint32_t) tcbToStart->sp;
+	uint32_t spToStart = (uint32_t)tcbToStart->sp;
 
 	__asm volatile(
 			"ldr r0, %[sp]\n"
