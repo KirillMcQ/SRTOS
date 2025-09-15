@@ -1,7 +1,0 @@
-"./Src/config.o"
-"./Src/main.o"
-"./Src/syscalls.o"
-"./Src/sysmem.o"
-"./Src/system_funcs.o"
-"./Src/task.o"
-"./Startup/startup_stm32f411vetx.o"
