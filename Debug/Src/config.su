@@ -1,7 +1,0 @@
-../Src/config.c:4:6:configureClock	4	static
-../Src/config.c:19:6:configureBlueLED	4	static
-../Src/config.c:29:6:configureGreenLED	4	static
-../Src/config.c:38:6:configureOrangeLED	4	static
-../Src/config.c:46:6:configureSystickInterrupts	4	static
-../Src/config.c:56:6:configureInterruptPriorities	4	static
-../Src/config.c:67:6:configureAll	8	static
