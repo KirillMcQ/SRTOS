@@ -1,5 +1,5 @@
-#ifndef MCU_REGISTERS_H_
-#define MCU_REGISTERS_H_
+#ifndef MCU_MACROS_H_
+#define MCU_MACROS_H_
 
 #define GPIOD_START_ADDR 0x40020C00
 #define RCC_START_ADDR 0x40023800

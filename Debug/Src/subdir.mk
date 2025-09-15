@@ -9,6 +9,7 @@ C_SRCS += \
 ../Src/main.c \
 ../Src/syscalls.c \
 ../Src/sysmem.c \
+../Src/system_funcs.c \
 ../Src/task.c 
 
 OBJS += \
@@ -16,6 +17,7 @@ OBJS += \
 ./Src/main.o \
 ./Src/syscalls.o \
 ./Src/sysmem.o \
+./Src/system_funcs.o \
 ./Src/task.o 
 
 C_DEPS += \
@@ -23,6 +25,7 @@ C_DEPS += \
 ./Src/main.d \
 ./Src/syscalls.d \
 ./Src/sysmem.d \
+./Src/system_funcs.d \
 ./Src/task.d 
 
 
@@ -33,7 +36,7 @@ Src/%.o Src/%.su Src/%.cyclo: ../Src/%.c Src/subdir.mk
 clean: clean-Src
 
 clean-Src:
-	-$(RM) ./Src/config.cyclo ./Src/config.d ./Src/config.o ./Src/config.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/task.cyclo ./Src/task.d ./Src/task.o ./Src/task.su
+	-$(RM) ./Src/config.cyclo ./Src/config.d ./Src/config.o ./Src/config.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/system_funcs.cyclo ./Src/system_funcs.d ./Src/system_funcs.o ./Src/system_funcs.su ./Src/task.cyclo ./Src/task.d ./Src/task.o ./Src/task.su
 
 .PHONY: clean-Src
 

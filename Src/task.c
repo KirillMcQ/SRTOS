@@ -45,6 +45,9 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 
 STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode)
 {
+	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode) return STATUS_FAILURE;
+	if (priority >= MAX_PRIORITIES) return STATUS_FAILURE;
+
 	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
 	userAllocatedTCB->priority = priority;
 	userAllocatedTCB->id = prvCurTaskIDNum;
@@ -54,7 +57,14 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 	userAllocatedTaskNode->taskTCB = userAllocatedTCB;
 	userAllocatedTaskNode->next = NULL;
 
-	return prvAddTaskNodeToReadyList(userAllocatedTaskNode);
+	STATUS resStatus;
+	systemENTER_CRITICAL();
+	{
+		resStatus = prvAddTaskNodeToReadyList(userAllocatedTaskNode);
+	}
+	systemEXIT_CRITICAL();
+
+	return resStatus;
 }
 
 void SysTick_Handler()
@@ -111,9 +121,14 @@ void PendSV_Handler()
 
 	curTask->taskTCB->sp = (uint32_t *)spToSave;
 
-	uint32_t nextSP = (uint32_t) prvNextTask->taskTCB->sp;
+	uint32_t nextSP;
+	systemENTER_CRITICAL();
+	{
+		nextSP = (uint32_t) prvNextTask->taskTCB->sp;
+		curTask = prvNextTask;
+	}
+	systemEXIT_CRITICAL();
 
-	curTask = prvNextTask;
 
 	__asm volatile(
 			"mov r2, %[nextSP]\n"
@@ -154,55 +169,56 @@ void setPendSVPending()
 	ICSR |= (1 << 28);
 }
 
-void taskYield()
-{
-	setPendSVPending();
-}
-
 void taskDelay(uint32_t ticksToDelay)
 {
-	uint32_t curTaskID = curTask->taskTCB->id;
-	uint32_t curTaskPriority = curTask->taskTCB->priority;
-
-	curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
-
-	// Remove the task from the ready list
-	TaskNode *cur = readyTasksList[curTaskPriority];
-	TaskNode *prev = NULL;
-
-	if (cur->next == NULL)
+	systemENTER_CRITICAL();
 	{
-		// This is the only task for this priority, and it must be curTask
-		readyTasksList[curTaskPriority] = NULL;
+		uint32_t curTaskID = curTask->taskTCB->id;
+		uint32_t curTaskPriority = curTask->taskTCB->priority;
+
+		curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
+
+		// Remove the task from the ready list
+		TaskNode *cur = readyTasksList[curTaskPriority];
+		TaskNode *prev = NULL;
+
+		if (cur->next == NULL)
+		{
+			// This is the only task for this priority, and it must be curTask
+			readyTasksList[curTaskPriority] = NULL;
+			prvNextTask = prvGetHighestTaskReadyToExecute();
+			prvAddTaskToBlockedList(curTask);
+			systemEXIT_CRITICAL();
+			setPendSVPending();
+			return;
+		}
+
+		// Check if curTask is the head of the priority
+		if (cur->taskTCB->id == curTaskID)
+		{
+			readyTasksList[curTaskPriority] = curTask->next;
+
+			prvNextTask = prvGetHighestTaskReadyToExecute();
+			prvAddTaskToBlockedList(curTask);
+			systemEXIT_CRITICAL();
+			setPendSVPending();
+			return;
+		}
+
+		// There is more than one task for the current priority
+		while (cur->taskTCB->id != curTaskID)
+		{
+			prev = cur;
+			cur = cur->next;
+		}
+
+		TaskNode *afterCur = cur->next;
+		prev->next = afterCur;
+
 		prvNextTask = prvGetHighestTaskReadyToExecute();
 		prvAddTaskToBlockedList(curTask);
-		setPendSVPending();
-		return;
 	}
-
-	// Check if curTask is the head of the priority
-	if (cur->taskTCB->id == curTaskID)
-	{
-		readyTasksList[curTaskPriority] = curTask->next;
-
-		prvNextTask = prvGetHighestTaskReadyToExecute();
-		prvAddTaskToBlockedList(curTask);
-		setPendSVPending();
-		return;
-	}
-
-	// There is more than one task for the current priority
-	while (cur->taskTCB->id != curTaskID)
-	{
-		prev = cur;
-		cur = cur->next;
-	}
-
-	TaskNode *afterCur = cur->next;
-	prev->next = afterCur;
-
-	prvNextTask = prvGetHighestTaskReadyToExecute();
-	prvAddTaskToBlockedList(curTask);
+	systemEXIT_CRITICAL();
 	setPendSVPending();
 }
 

@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "mcu_registers.h"
+
+#include "mcu_macros.h"
 
 void configureClock();
 void configureBlueLED();
