@@ -5,7 +5,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "kernel_config.h"
-#include "mcu_registers.h"
+#include "mcu_macros.h"
+#include "system_funcs.h"
 
 typedef enum
 {
@@ -42,7 +43,6 @@ void SVC_Handler();
 void setPendSVPending();
 void startScheduler();
 
-void taskYield(); // TODO: This shouldn't work right now. Fix later.
 void taskDelay(uint32_t ticksToDelay);
 
 #endif
