@@ -23,6 +23,13 @@ static void idleTask();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
+	for (int i = 0; i < STACK_SIZE; ++i) {
+		taskStack[i] = STACK_USAGE_WATERMARK;
+	}
+
+	taskStack[0] = STACK_OVERFLOW_CANARY_VALUE;
+	taskStack[1] = STACK_OVERFLOW_CANARY_VALUE;
+
 	taskStack[STACK_SIZE - 1] = 0x01000000;									// xPSR
 	taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; // PC
 	taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;									// LR
@@ -48,6 +55,8 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode)
 		return STATUS_FAILURE;
 	if (priority >= MAX_PRIORITIES)
+		return STATUS_FAILURE;
+	if (STACK_SIZE < 18)
 		return STATUS_FAILURE;
 
 	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
