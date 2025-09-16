@@ -20,10 +20,12 @@ static void prvUnblockDelayedTasksReadyToUnblock();
 static TaskNode *prvIdleTask;
 static TaskNode *createIdleTask();
 static void idleTask();
+static void prvCheckCurTaskForStackOverflow();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
-	for (int i = 0; i < STACK_SIZE; ++i) {
+	for (int i = 0; i < STACK_SIZE; ++i)
+	{
 		taskStack[i] = STACK_USAGE_WATERMARK;
 	}
 
@@ -367,4 +369,8 @@ static void idleTask()
 	{
 		__asm volatile("wfi");
 	}
+}
+
+static void prvCheckCurTaskForStackOverflow()
+{
 }
