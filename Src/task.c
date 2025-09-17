@@ -65,6 +65,7 @@ STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int pri
 	userAllocatedTCB->priority = priority;
 	userAllocatedTCB->id = prvCurTaskIDNum;
 	prvCurTaskIDNum++;
+	userAllocatedTCB->stackFrameLowerBoundAddr = &taskStack[0];
 
 	// Insert at end of tasks linked list
 	userAllocatedTaskNode->taskTCB = userAllocatedTCB;
@@ -124,8 +125,9 @@ void SysTick_Handler()
 
 void PendSV_Handler()
 {
-	uint32_t spToSave;
+	prvCheckCurTaskForStackOverflow();
 
+	uint32_t spToSave;
 	__asm volatile(
 			"mrs r0, PSP\n"
 			"stmdb r0!, {r4-r11}\n"
@@ -373,4 +375,22 @@ static void idleTask()
 
 static void prvCheckCurTaskForStackOverflow()
 {
+	uint32_t *curTaskStackFrameLowerBound;
+	systemENTER_CRITICAL();
+	{
+		curTaskStackFrameLowerBound = curTask->stackFrameLowerBoundAddr;
+	}
+	systemEXIT_CRITICAL();
+
+	if ((*curTaskStackFrameLowerBound != STACK_OVERFLOW_CANARY_VALUE) || (*(curTaskStackFrameLowerBound + 1) != STACK_OVERFLOW_CANARY_VALUE))
+	{
+		handleStackOverflow();
+	}
+}
+
+void __attribute__((weak)) handleStackOverflow()
+{
+	for (;;)
+	{
+	}
 }
