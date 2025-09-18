@@ -46,6 +46,8 @@ void startScheduler();
 
 void taskDelay(uint32_t ticksToDelay);
 
+uint32_t getCurTaskStackHighWatermark();
+
 // Weakly defined in task.c, override available for the user.
 void handleStackOverflow();
 

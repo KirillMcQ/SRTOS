@@ -395,3 +395,26 @@ void __attribute__((weak)) handleStackOverflow()
 	{
 	}
 }
+
+uint32_t getCurTaskStackHighWatermark()
+{
+	uint32_t *curTaskStackFrameLowerBound;
+	systemENTER_CRITICAL();
+	{
+		curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
+	}
+	systemEXIT_CRITICAL();
+
+	curTaskStackFrameLowerBound += 2; // Skip the 2 canary values (assumes no stack overflow)
+
+	// 0 word = 4 bytes = 32 bits
+	uint32_t amtWordsAvailable = 0;
+
+	while (*(curTaskStackFrameLowerBound) == STACK_USAGE_WATERMARK)
+	{
+		curTaskStackFrameLowerBound++;
+		amtWordsAvailable++;
+	}
+
+	return amtWordsAvailable;
+}
