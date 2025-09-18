@@ -358,6 +358,7 @@ static TaskNode *createIdleTask()
 	idleTaskTCBptr->sp = initTaskStackFrame(idleTaskStack, &idleTask);
 	idleTaskTCBptr->priority = 0;
 	idleTaskTCBptr->id = prvCurTaskIDNum;
+	idleTaskTCBptr->stackFrameLowerBoundAddr = &idleTaskStack[0];
 	idleTaskNodePtr->taskTCB = idleTaskTCBptr;
 	idleTaskNodePtr->next = NULL;
 	prvCurTaskIDNum++;
@@ -378,7 +379,7 @@ static void prvCheckCurTaskForStackOverflow()
 	uint32_t *curTaskStackFrameLowerBound;
 	systemENTER_CRITICAL();
 	{
-		curTaskStackFrameLowerBound = curTask->stackFrameLowerBoundAddr;
+		curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
 	}
 	systemEXIT_CRITICAL();
 
