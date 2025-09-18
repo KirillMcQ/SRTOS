@@ -20,6 +20,7 @@ typedef struct
 	uint32_t priority;
 	uint32_t id;
 	uint32_t delayedUntil;
+	uint32_t *stackFrameLowerBoundAddr;
 } TCB;
 
 typedef struct TaskNode TaskNode;
@@ -44,5 +45,8 @@ void setPendSVPending();
 void startScheduler();
 
 void taskDelay(uint32_t ticksToDelay);
+
+// Weakly defined in task.c, override available for the user.
+void handleStackOverflow();
 
 #endif

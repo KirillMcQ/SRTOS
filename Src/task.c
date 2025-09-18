@@ -20,9 +20,18 @@ static void prvUnblockDelayedTasksReadyToUnblock();
 static TaskNode *prvIdleTask;
 static TaskNode *createIdleTask();
 static void idleTask();
+static void prvCheckCurTaskForStackOverflow();
 
 uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 {
+	for (int i = 0; i < STACK_SIZE; ++i)
+	{
+		taskStack[i] = STACK_USAGE_WATERMARK;
+	}
+
+	taskStack[0] = STACK_OVERFLOW_CANARY_VALUE;
+	taskStack[1] = STACK_OVERFLOW_CANARY_VALUE;
+
 	taskStack[STACK_SIZE - 1] = 0x01000000;									// xPSR
 	taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; // PC
 	taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;									// LR
@@ -45,13 +54,18 @@ uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
 
 STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode)
 {
-	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode) return STATUS_FAILURE;
-	if (priority >= MAX_PRIORITIES) return STATUS_FAILURE;
+	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode)
+		return STATUS_FAILURE;
+	if (priority >= MAX_PRIORITIES)
+		return STATUS_FAILURE;
+	if (STACK_SIZE < 18)
+		return STATUS_FAILURE;
 
 	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
 	userAllocatedTCB->priority = priority;
 	userAllocatedTCB->id = prvCurTaskIDNum;
 	prvCurTaskIDNum++;
+	userAllocatedTCB->stackFrameLowerBoundAddr = &taskStack[0];
 
 	// Insert at end of tasks linked list
 	userAllocatedTaskNode->taskTCB = userAllocatedTCB;
@@ -111,8 +125,9 @@ void SysTick_Handler()
 
 void PendSV_Handler()
 {
-	uint32_t spToSave;
+	prvCheckCurTaskForStackOverflow();
 
+	uint32_t spToSave;
 	__asm volatile(
 			"mrs r0, PSP\n"
 			"stmdb r0!, {r4-r11}\n"
@@ -124,11 +139,10 @@ void PendSV_Handler()
 	uint32_t nextSP;
 	systemENTER_CRITICAL();
 	{
-		nextSP = (uint32_t) prvNextTask->taskTCB->sp;
+		nextSP = (uint32_t)prvNextTask->taskTCB->sp;
 		curTask = prvNextTask;
 	}
 	systemEXIT_CRITICAL();
-
 
 	__asm volatile(
 			"mov r2, %[nextSP]\n"
@@ -145,7 +159,7 @@ void PendSV_Handler()
 void SVC_Handler()
 {
 	TCB *tcbToStart = curTask->taskTCB;
-	uint32_t spToStart = (uint32_t) tcbToStart->sp;
+	uint32_t spToStart = (uint32_t)tcbToStart->sp;
 
 	__asm volatile(
 			"ldr r0, %[sp]\n"
@@ -344,6 +358,7 @@ static TaskNode *createIdleTask()
 	idleTaskTCBptr->sp = initTaskStackFrame(idleTaskStack, &idleTask);
 	idleTaskTCBptr->priority = 0;
 	idleTaskTCBptr->id = prvCurTaskIDNum;
+	idleTaskTCBptr->stackFrameLowerBoundAddr = &idleTaskStack[0];
 	idleTaskNodePtr->taskTCB = idleTaskTCBptr;
 	idleTaskNodePtr->next = NULL;
 	prvCurTaskIDNum++;
@@ -356,5 +371,27 @@ static void idleTask()
 	for (;;)
 	{
 		__asm volatile("wfi");
+	}
+}
+
+static void prvCheckCurTaskForStackOverflow()
+{
+	uint32_t *curTaskStackFrameLowerBound;
+	systemENTER_CRITICAL();
+	{
+		curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
+	}
+	systemEXIT_CRITICAL();
+
+	if ((*curTaskStackFrameLowerBound != STACK_OVERFLOW_CANARY_VALUE) || (*(curTaskStackFrameLowerBound + 1) != STACK_OVERFLOW_CANARY_VALUE))
+	{
+		handleStackOverflow();
+	}
+}
+
+void __attribute__((weak)) handleStackOverflow()
+{
+	for (;;)
+	{
 	}
 }

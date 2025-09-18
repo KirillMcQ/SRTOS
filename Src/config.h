@@ -7,12 +7,6 @@
 
 #include "mcu_macros.h"
 
-void configureClock();
-void configureBlueLED();
-void configureGreenLED();
-void configureOrangeLED();
-void configureSystickInterrupts();
-void configureInterruptPriorities();
 void configureAll();
 
 #endif

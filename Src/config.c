@@ -1,7 +1,7 @@
 #include "config.h"
 
 // Configuration functions
-void configureClock()
+static void configureClock()
 {
 	// Clock Configuration - SYSCLK sourced from HSE - 8 Mhz
 	RCC_CR |= (1 << 16); // HSEON -> 1
@@ -16,17 +16,17 @@ void configureClock()
 		;
 }
 
-void configureBlueLED()
+static void configureBlueLED()
 {
 	// Enable the RCC Peripheral Clock for GPIOD
 	RCC_AHB1ENR |= (1 << 3);
 	// Set the PD15 GPIO Pin (Blue LED) to Output
-	GPIOD_MODER &= ~(1 << 31);
+	GPIOD_MODER &= ~(1U << 31);
 	GPIOD_MODER &= ~(1U << 30);
 	GPIOD_MODER |= (1 << 30);
 }
 
-void configureGreenLED()
+static void configureGreenLED()
 {
 	// Clock already enabled, since blue LED is also on GPIOD
 	// Green LED: PD12
@@ -35,7 +35,7 @@ void configureGreenLED()
 	GPIOD_MODER |= (1 << 24);
 }
 
-void configureOrangeLED()
+static void configureOrangeLED()
 {
 	// Orange LED: PD13
 	GPIOD_MODER &= ~(1U << 26);
@@ -43,7 +43,7 @@ void configureOrangeLED()
 	GPIOD_MODER |= (1 << 26);
 }
 
-void configureSystickInterrupts()
+static void configureSystickInterrupts()
 {
 	SYSTICK_CSR &= ~(1U << 0);			// Disable timer
 	SYSTICK_CSR |= (1 << 2);			// Use SYSCLK
@@ -53,7 +53,7 @@ void configureSystickInterrupts()
 	SYSTICK_CSR |= (1 << 0);			// Enable Timer
 }
 
-void configureInterruptPriorities()
+static void configureInterruptPriorities()
 {
 	// PendSV to the lowest priority (240 because only top 4 bits are used)
 	SHPR3 &= ~(0xFFU << PENDSV_PRIORITY_START_BIT);

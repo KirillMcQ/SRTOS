@@ -10,7 +10,7 @@ TCB task2TCB;
 TaskNode task1Node;
 TaskNode task2Node;
 
-void task1_blueLED()
+static void task1_blueLED()
 {
 	for (;;)
 	{
@@ -19,7 +19,7 @@ void task1_blueLED()
 	}
 }
 
-void task2_greenLED()
+static void task2_greenLED()
 {
 	for (;;)
 	{
