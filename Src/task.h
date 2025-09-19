@@ -46,6 +46,7 @@ void startScheduler();
 
 void taskDelay(uint32_t ticksToDelay);
 
+// Returns minimum number of words available on the current task's stack.
 uint32_t getCurTaskStackHighWatermark();
 
 // Weakly defined in task.c, override available for the user.

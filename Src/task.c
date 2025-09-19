@@ -407,7 +407,7 @@ uint32_t getCurTaskStackHighWatermark()
 
 	curTaskStackFrameLowerBound += 2; // Skip the 2 canary values (assumes no stack overflow)
 
-	// 0 word = 4 bytes = 32 bits
+	// 1 word = 4 bytes = 32 bits
 	uint32_t amtWordsAvailable = 0;
 
 	while (*(curTaskStackFrameLowerBound) == STACK_USAGE_WATERMARK)
