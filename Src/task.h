@@ -7,6 +7,7 @@
 #include "kernel_config.h"
 #include "mcu_macros.h"
 #include "system_funcs.h"
+#include "fault.h"
 
 typedef enum
 {

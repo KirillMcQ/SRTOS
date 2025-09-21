@@ -14,3 +14,4 @@ void systemEXIT_CRITICAL() {
 			"MSR BASEPRI, r0\n"
 			"ISB\n");
 }
+
