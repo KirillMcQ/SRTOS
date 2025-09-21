@@ -16,7 +16,6 @@ static void task1_blueLED()
 	{
 		GPIOD_ODR ^= (1 << 15);
 		taskDelay(1000);
-		udf_undefined_instr();
 	}
 }
 
