@@ -12,7 +12,7 @@ __attribute((naked)) uint32_t *systemGet_Fault_SP(__attribute((unused)) uint32_t
 
 /*
  * This must be called in every fault handler.
- * This may be implemented however is needed.
+ * This may be implemented however required.
  * */
 
 void systemHandle_Fault(uint32_t *faultSP)
@@ -24,7 +24,7 @@ void systemHandle_Fault(uint32_t *faultSP)
 
 /*
  * ****USER CODE SECTION START****
- * Implement your fault handlers here.
+ * Implement custom fault handlers here.
  * */
 
 __attribute__((naked)) void HardFault_Handler() {
