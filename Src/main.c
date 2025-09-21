@@ -12,16 +12,17 @@ TaskNode task2Node;
 
 static void task1_blueLED()
 {
-	for (;;)
+	while (1)
 	{
 		GPIOD_ODR ^= (1 << 15);
 		taskDelay(1000);
+		udf_undefined_instr();
 	}
 }
 
 static void task2_greenLED()
 {
-	for (;;)
+	while (1)
 	{
 		GPIOD_ODR ^= (1 << 12);
 		taskDelay(500);
