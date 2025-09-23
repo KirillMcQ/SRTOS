@@ -2,6 +2,7 @@
 #define FAULT_H_
 
 #include <stdint.h>
+#include "mcu_macros.h"
 
 /*
  * These helper functions are provided to help troubleshoot
