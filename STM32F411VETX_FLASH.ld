@@ -45,7 +45,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 512K
+  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 384K
+  FAULT_DATA (xrw) : ORIGIN = 0x08060000,  LENGTH = 128K
 }
 
 /* Sections */
@@ -174,6 +175,16 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
+  
+  /* Will store fault data in the event of a crash */
+  .fault_debug :
+  {
+  	. = ALIGN(4);
+  	_fault_debug_start = .;
+  	*(.fault_debug);
+  	_fault_debug_end = .;
+  	. = ALIGN(4);
+  } > FAULT_DATA
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

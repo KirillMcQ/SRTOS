@@ -10,6 +10,7 @@ TCB task2TCB;
 TaskNode task1Node;
 TaskNode task2Node;
 
+
 static void task1_blueLED()
 {
 	while (1)
