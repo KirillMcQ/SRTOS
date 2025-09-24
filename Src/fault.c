@@ -17,32 +17,54 @@ __attribute((naked)) uint32_t *systemGet_Fault_SP(__attribute__((unused)) uint32
 
 void systemHandle_Fault(uint32_t *faultSP)
 {
-	uint32_t r0;
-	uint32_t r1;
-	uint32_t r2;
-	uint32_t r3;
-	uint32_t r12;
-	uint32_t lr;
-	uint32_t pc;
-	uint32_t psr;
-
-	r0 = faultSP[0];
-	r1 = faultSP[1];
-	r2 = faultSP[2];
-	r3 = faultSP[3];
-	r12 = faultSP[4];
-	lr = faultSp[5];
-	pc = faultSP[6];
-	psr = faultSP[7];
-
 	FLASH_KEYR = FLASH_UNLOCK_KEY1;
 	FLASH_KEYR = FLASH_UNLOCK_KEY2;
 
-	while (FLASH_SR & (1 << FLASH_SR_BSY_BIT))
-		;
+	while (FLASH_SR & (1U << FLASH_SR_BSY_BIT));
 
-	while (1)
-		;
+	// PSIZE -> 0b10 which is a 32 bit parallelism size
+	FLASH_CR &= ~(1U << FLASH_CR_PSIZE_BIT_START);
+	FLASH_CR &= ~(1U << (FLASH_CR_PSIZE_BIT_START + 1));
+	FLASH_CR |= (1U << (FLASH_CR_PSIZE_BIT_START + 1));
+
+	while (FLASH_SR & (1U << FLASH_SR_BSY_BIT));
+
+	// Activate Sector Erase
+	FLASH_CR |= (1U << FLASH_CR_SER_BIT);
+
+	// Erase Sector 7 (FAULT_DATA)
+	FLASH_CR &= ~(0xFU << FLASH_CR_SNB_BIT_START);
+	FLASH_CR |= (0x7U << FLASH_CR_SNB_BIT_START);
+
+	// Start erasing
+	FLASH_CR |= (1U << FLASH_CR_STRT_BIT);
+
+	while (FLASH_SR & (1U << FLASH_SR_BSY_BIT));
+
+	// Program data to flash
+	FLASH_CR |= (1U << FLASH_CR_PG_BIT);
+
+	/*
+	 * Push order:
+	 * r0
+	 * r1
+	 * r2
+	 * r3
+	 * r12
+	 * lr
+	 * pc
+	 * psr
+	 * */
+
+	volatile uint32_t *curWriteAddr = (volatile uint32_t *) FAULT_DATA_FLASH_START_ADDR;
+	for (int i = 0; i < 8; i++) {
+		*(curWriteAddr) = faultSP[i];
+		curWriteAddr += 1;
+	}
+
+	while (FLASH_SR & (1U << FLASH_SR_BSY_BIT));
+
+	while (1);
 }
 
 __attribute__((naked)) void HardFault_Handler()
