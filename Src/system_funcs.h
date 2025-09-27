@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void systemENTER_CRITICAL();
-void systemEXIT_CRITICAL();
+void systemENTER_CRITICAL ();
+void systemEXIT_CRITICAL ();
 
 #endif

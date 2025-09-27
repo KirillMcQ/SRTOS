@@ -2,7 +2,7 @@
 
 volatile uint32_t msTicks = 0;
 TaskNode *curTask = NULL;
-TaskNode *readyTasksList[MAX_PRIORITIES] = {NULL};
+TaskNode *readyTasksList[MAX_PRIORITIES] = { NULL };
 
 static uint32_t prvCurTaskIDNum = 0;
 static TaskNode *prvNextTask = NULL;
@@ -11,410 +11,428 @@ static uint32_t idleTaskStack[STACK_SIZE];
 static TCB idleTaskTCB;
 static TCB *idleTaskTCBptr = &idleTaskTCB;
 static TaskNode idleTaskNode;
+static TaskNode *prvIdleTask;
 static TaskNode *idleTaskNodePtr = &idleTaskNode;
 
-static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
-static TaskNode *prvGetHighestTaskReadyToExecute();
-static void prvAddTaskToBlockedList(TaskNode *task);
-static void prvUnblockDelayedTasksReadyToUnblock();
-static TaskNode *prvIdleTask;
-static TaskNode *createIdleTask();
-static void idleTask();
-static void prvCheckCurTaskForStackOverflow();
+static STATUS prvAddTaskNodeToReadyList (TaskNode *task);
+static TaskNode *prvGetHighestTaskReadyToExecute ();
+static void prvAddTaskToBlockedList (TaskNode *task);
+static void prvUnblockDelayedTasksReadyToUnblock ();
+static TaskNode *createIdleTask ();
+static void idleTask ();
+static void prvCheckCurTaskForStackOverflow ();
 
-uint32_t *initTaskStackFrame(uint32_t taskStack[], void (*taskFunc)(void))
+uint32_t *
+initTaskStackFrame (uint32_t taskStack[], void (*taskFunc) (void))
 {
-	for (int i = 0; i < STACK_SIZE; ++i)
-	{
-		taskStack[i] = STACK_USAGE_WATERMARK;
-	}
+  for (int i = 0; i < STACK_SIZE; ++i)
+    {
+      taskStack[i] = STACK_USAGE_WATERMARK;
+    }
 
-	taskStack[0] = STACK_OVERFLOW_CANARY_VALUE;
-	taskStack[1] = STACK_OVERFLOW_CANARY_VALUE;
+  taskStack[0] = STACK_OVERFLOW_CANARY_VALUE;
+  taskStack[1] = STACK_OVERFLOW_CANARY_VALUE;
 
-	taskStack[STACK_SIZE - 1] = 0x01000000;									// xPSR
-	taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; // PC
-	taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;									// LR
-	taskStack[STACK_SIZE - 4] = 0x00000000;									// R12
-	taskStack[STACK_SIZE - 5] = 0x00000000;									// R3
-	taskStack[STACK_SIZE - 6] = 0x00000000;									// R2
-	taskStack[STACK_SIZE - 7] = 0x00000000;									// R1
-	taskStack[STACK_SIZE - 8] = 0x00000000;									// R0
-	taskStack[STACK_SIZE - 9] = 0x00000000;									// R11
-	taskStack[STACK_SIZE - 10] = 0x00000000;								// R10
-	taskStack[STACK_SIZE - 11] = 0x00000000;								// R9
-	taskStack[STACK_SIZE - 12] = 0x00000000;								// R8
-	taskStack[STACK_SIZE - 13] = 0x00000000;								// R7
-	taskStack[STACK_SIZE - 14] = 0x00000000;								// R6
-	taskStack[STACK_SIZE - 15] = 0x00000000;								// R5
-	taskStack[STACK_SIZE - 16] = 0x00000000;								// R4
+  taskStack[STACK_SIZE - 1] = 0x01000000;                 // xPSR
+  taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; // PC
+  taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;                 // LR
+  taskStack[STACK_SIZE - 4] = 0x00000000;                 // R12
+  taskStack[STACK_SIZE - 5] = 0x00000000;                 // R3
+  taskStack[STACK_SIZE - 6] = 0x00000000;                 // R2
+  taskStack[STACK_SIZE - 7] = 0x00000000;                 // R1
+  taskStack[STACK_SIZE - 8] = 0x00000000;                 // R0
+  taskStack[STACK_SIZE - 9] = 0x00000000;                 // R11
+  taskStack[STACK_SIZE - 10] = 0x00000000;                // R10
+  taskStack[STACK_SIZE - 11] = 0x00000000;                // R9
+  taskStack[STACK_SIZE - 12] = 0x00000000;                // R8
+  taskStack[STACK_SIZE - 13] = 0x00000000;                // R7
+  taskStack[STACK_SIZE - 14] = 0x00000000;                // R6
+  taskStack[STACK_SIZE - 15] = 0x00000000;                // R5
+  taskStack[STACK_SIZE - 16] = 0x00000000;                // R4
 
-	return &taskStack[STACK_SIZE - 16];
+  return &taskStack[STACK_SIZE - 16];
 }
 
-STATUS createTask(uint32_t taskStack[], void (*taskFunc)(void), unsigned int priority, TCB *userAllocatedTCB, TaskNode *userAllocatedTaskNode)
+STATUS
+createTask (uint32_t taskStack[], void (*taskFunc) (void),
+            unsigned int priority, TCB *userAllocatedTCB,
+            TaskNode *userAllocatedTaskNode)
 {
-	if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode)
-		return STATUS_FAILURE;
-	if (priority >= MAX_PRIORITIES)
-		return STATUS_FAILURE;
-	if (STACK_SIZE < 18)
-		return STATUS_FAILURE;
+  if (!taskFunc || !userAllocatedTCB || !userAllocatedTaskNode)
+    return STATUS_FAILURE;
+  if (priority >= MAX_PRIORITIES)
+    return STATUS_FAILURE;
+  if (STACK_SIZE < 18)
+    return STATUS_FAILURE;
 
-	userAllocatedTCB->sp = initTaskStackFrame(taskStack, taskFunc);
-	userAllocatedTCB->priority = priority;
-	userAllocatedTCB->id = prvCurTaskIDNum;
-	prvCurTaskIDNum++;
-	userAllocatedTCB->stackFrameLowerBoundAddr = &taskStack[0];
+  userAllocatedTCB->sp = initTaskStackFrame (taskStack, taskFunc);
+  userAllocatedTCB->priority = priority;
+  userAllocatedTCB->id = prvCurTaskIDNum;
+  prvCurTaskIDNum++;
+  userAllocatedTCB->stackFrameLowerBoundAddr = &taskStack[0];
 
-	// Insert at end of tasks linked list
-	userAllocatedTaskNode->taskTCB = userAllocatedTCB;
-	userAllocatedTaskNode->next = NULL;
+  // Insert at end of tasks linked list
+  userAllocatedTaskNode->taskTCB = userAllocatedTCB;
+  userAllocatedTaskNode->next = NULL;
 
-	STATUS resStatus;
-	systemENTER_CRITICAL();
-	{
-		resStatus = prvAddTaskNodeToReadyList(userAllocatedTaskNode);
-	}
-	systemEXIT_CRITICAL();
+  STATUS resStatus;
+  systemENTER_CRITICAL ();
+  {
+    resStatus = prvAddTaskNodeToReadyList (userAllocatedTaskNode);
+  }
+  systemEXIT_CRITICAL ();
 
-	return resStatus;
+  return resStatus;
 }
 
-void SysTick_Handler()
+void
+SysTick_Handler ()
 {
-	msTicks++;
+  msTicks++;
 
-	prvUnblockDelayedTasksReadyToUnblock();
+  prvUnblockDelayedTasksReadyToUnblock ();
 
-	if (curTask == NULL)
-	{
-		return;
-	}
+  if (curTask == NULL)
+    {
+      return;
+    }
 
-	uint32_t curExecutingPriority = curTask->taskTCB->priority;
+  uint32_t curExecutingPriority = curTask->taskTCB->priority;
 
-	TaskNode *highestPriorityPossibleExecute = prvGetHighestTaskReadyToExecute();
+  TaskNode *highestPriorityPossibleExecute
+      = prvGetHighestTaskReadyToExecute ();
 
-	// Check if a higher priority task is ready to execute
-	if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority)
-	{
-		prvNextTask = highestPriorityPossibleExecute;
-		setPendSVPending();
-		return;
-	}
+  // Check if a higher priority task is ready to execute
+  if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority)
+    {
+      prvNextTask = highestPriorityPossibleExecute;
+      setPendSVPending ();
+      return;
+    }
 
-	if (curTask->next == NULL)
-	{
-		if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id)
-		{
-			// There is another task of equal priority, time to switch.
-			prvNextTask = highestPriorityPossibleExecute;
-			setPendSVPending();
-			return;
-		}
-	}
-	else
-	{
-		// There is another task of equal priority, time to switch.
-		prvNextTask = curTask->next;
-		setPendSVPending();
-		return;
-	}
+  if (curTask->next == NULL)
+    {
+      if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id)
+        {
+          // There is another task of equal priority, time to switch.
+          prvNextTask = highestPriorityPossibleExecute;
+          setPendSVPending ();
+          return;
+        }
+    }
+  else
+    {
+      // There is another task of equal priority, time to switch.
+      prvNextTask = curTask->next;
+      setPendSVPending ();
+      return;
+    }
 }
 
-void PendSV_Handler()
+void
+PendSV_Handler ()
 {
-	prvCheckCurTaskForStackOverflow();
+  prvCheckCurTaskForStackOverflow ();
 
-	uint32_t spToSave;
-	__asm volatile(
-			"mrs r0, PSP\n"
-			"stmdb r0!, {r4-r11}\n"
-			"mov %[spToSave], r0\n"
-			: [spToSave] "=r"(spToSave));
+  uint32_t spToSave;
+  __asm volatile ("mrs r0, PSP\n"
+                  "stmdb r0!, {r4-r11}\n"
+                  "mov %[spToSave], r0\n"
+                  : [spToSave] "=r"(spToSave));
 
-	curTask->taskTCB->sp = (uint32_t *)spToSave;
+  curTask->taskTCB->sp = (uint32_t *)spToSave;
 
-	uint32_t nextSP;
-	systemENTER_CRITICAL();
-	{
-		nextSP = (uint32_t)prvNextTask->taskTCB->sp;
-		curTask = prvNextTask;
-	}
-	systemEXIT_CRITICAL();
+  uint32_t nextSP;
+  systemENTER_CRITICAL ();
+  {
+    nextSP = (uint32_t)prvNextTask->taskTCB->sp;
+    curTask = prvNextTask;
+  }
+  systemEXIT_CRITICAL ();
 
-	__asm volatile(
-			"mov r2, %[nextSP]\n"
-			"ldmia r2!, {r4-r11}\n"
-			"msr PSP, r2\n"
-			:
-			: [nextSP] "r"(nextSP));
+  __asm volatile ("mov r2, %[nextSP]\n"
+                  "ldmia r2!, {r4-r11}\n"
+                  "msr PSP, r2\n"
+                  :
+                  : [nextSP] "r"(nextSP));
 
-	__asm volatile(
-			"ldr lr, =0xFFFFFFFD\n"
-			"bx lr\n");
+  __asm volatile ("ldr lr, =0xFFFFFFFD\n"
+                  "bx lr\n");
 }
 
-void SVC_Handler()
+void
+SVC_Handler ()
 {
-	TCB *tcbToStart = curTask->taskTCB;
-	uint32_t spToStart = (uint32_t)tcbToStart->sp;
+  TCB *tcbToStart = curTask->taskTCB;
+  uint32_t spToStart = (uint32_t)tcbToStart->sp;
 
-	__asm volatile(
-			"ldr r0, %[sp]\n"
-			"ldmia r0!, {r4-r11}\n"
-			"msr PSP, r0\n"
-			"ldr lr, =0xFFFFFFFD\n"
-			"bx lr\n"
-			:
-			: [sp] "m"(spToStart));
+  __asm volatile ("ldr r0, %[sp]\n"
+                  "ldmia r0!, {r4-r11}\n"
+                  "msr PSP, r0\n"
+                  "ldr lr, =0xFFFFFFFD\n"
+                  "bx lr\n"
+                  :
+                  : [sp] "m"(spToStart));
 }
 
-void startScheduler()
+void
+startScheduler ()
 {
-	prvIdleTask = createIdleTask();
-	curTask = prvGetHighestTaskReadyToExecute();
-	__asm volatile("svc #0");
+  prvIdleTask = createIdleTask ();
+  curTask = prvGetHighestTaskReadyToExecute ();
+  __asm volatile ("svc #0");
 }
 
-void setPendSVPending()
+void
+setPendSVPending ()
 {
-	ICSR |= (1 << 28);
+  ICSR |= (1 << 28);
 }
 
-void taskDelay(uint32_t ticksToDelay)
+void
+taskDelay (uint32_t ticksToDelay)
 {
-	systemENTER_CRITICAL();
-	{
-		uint32_t curTaskID = curTask->taskTCB->id;
-		uint32_t curTaskPriority = curTask->taskTCB->priority;
+  systemENTER_CRITICAL ();
+  {
+    uint32_t curTaskID = curTask->taskTCB->id;
+    uint32_t curTaskPriority = curTask->taskTCB->priority;
 
-		curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
+    curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
 
-		// Remove the task from the ready list
-		TaskNode *cur = readyTasksList[curTaskPriority];
-		TaskNode *prev = NULL;
+    // Remove the task from the ready list
+    TaskNode *cur = readyTasksList[curTaskPriority];
+    TaskNode *prev = NULL;
 
-		if (cur->next == NULL)
-		{
-			// This is the only task for this priority, and it must be curTask
-			readyTasksList[curTaskPriority] = NULL;
-			prvNextTask = prvGetHighestTaskReadyToExecute();
-			prvAddTaskToBlockedList(curTask);
-			systemEXIT_CRITICAL();
-			setPendSVPending();
-			return;
-		}
+    if (cur->next == NULL)
+      {
+        // This is the only task for this priority, and it must be curTask
+        readyTasksList[curTaskPriority] = NULL;
+        prvNextTask = prvGetHighestTaskReadyToExecute ();
+        prvAddTaskToBlockedList (curTask);
+        systemEXIT_CRITICAL ();
+        setPendSVPending ();
+        return;
+      }
 
-		// Check if curTask is the head of the priority
-		if (cur->taskTCB->id == curTaskID)
-		{
-			readyTasksList[curTaskPriority] = curTask->next;
+    // Check if curTask is the head of the priority
+    if (cur->taskTCB->id == curTaskID)
+      {
+        readyTasksList[curTaskPriority] = curTask->next;
 
-			prvNextTask = prvGetHighestTaskReadyToExecute();
-			prvAddTaskToBlockedList(curTask);
-			systemEXIT_CRITICAL();
-			setPendSVPending();
-			return;
-		}
+        prvNextTask = prvGetHighestTaskReadyToExecute ();
+        prvAddTaskToBlockedList (curTask);
+        systemEXIT_CRITICAL ();
+        setPendSVPending ();
+        return;
+      }
 
-		// There is more than one task for the current priority
-		while (cur->taskTCB->id != curTaskID)
-		{
-			prev = cur;
-			cur = cur->next;
-		}
+    // There is more than one task for the current priority
+    while (cur->taskTCB->id != curTaskID)
+      {
+        prev = cur;
+        cur = cur->next;
+      }
 
-		TaskNode *afterCur = cur->next;
-		prev->next = afterCur;
+    TaskNode *afterCur = cur->next;
+    prev->next = afterCur;
 
-		prvNextTask = prvGetHighestTaskReadyToExecute();
-		prvAddTaskToBlockedList(curTask);
-	}
-	systemEXIT_CRITICAL();
-	setPendSVPending();
+    prvNextTask = prvGetHighestTaskReadyToExecute ();
+    prvAddTaskToBlockedList (curTask);
+  }
+  systemEXIT_CRITICAL ();
+  setPendSVPending ();
 }
 
-static STATUS prvAddTaskNodeToReadyList(TaskNode *task)
+static STATUS
+prvAddTaskNodeToReadyList (TaskNode *task)
 {
-	// Safeguards
-	if (task->taskTCB->priority >= MAX_PRIORITIES)
-	{
-		return STATUS_FAILURE;
-	}
+  // Safeguards
+  if (task->taskTCB->priority >= MAX_PRIORITIES)
+    {
+      return STATUS_FAILURE;
+    }
 
-	task->next = NULL;
+  task->next = NULL;
 
-	uint32_t curPriority = task->taskTCB->priority;
+  uint32_t curPriority = task->taskTCB->priority;
 
-	TaskNode *curHead = readyTasksList[curPriority];
+  TaskNode *curHead = readyTasksList[curPriority];
 
-	if (curHead == NULL)
-	{
-		// This is the first node for this priority
-		readyTasksList[curPriority] = task;
-		return STATUS_SUCCESS;
-	}
+  if (curHead == NULL)
+    {
+      // This is the first node for this priority
+      readyTasksList[curPriority] = task;
+      return STATUS_SUCCESS;
+    }
 
-	// Get to the end of the LL
-	while (curHead->next != NULL)
-	{
-		curHead = curHead->next;
-	}
+  // Get to the end of the LL
+  while (curHead->next != NULL)
+    {
+      curHead = curHead->next;
+    }
 
-	curHead->next = task;
-	return STATUS_SUCCESS;
+  curHead->next = task;
+  return STATUS_SUCCESS;
 }
 
-static TaskNode *prvGetHighestTaskReadyToExecute()
+static TaskNode *
+prvGetHighestTaskReadyToExecute ()
 {
-	int idx = MAX_PRIORITIES - 1; // Highest Priority Possible
+  int idx = MAX_PRIORITIES - 1; // Highest Priority Possible
 
-	while (idx >= 0)
-	{
-		if (readyTasksList[idx] != NULL)
-		{
-			return readyTasksList[idx];
-		}
-		--idx;
-	}
+  while (idx >= 0)
+    {
+      if (readyTasksList[idx] != NULL)
+        {
+          return readyTasksList[idx];
+        }
+      --idx;
+    }
 
-	// If no tasks are ready to run, return the idle task
-	return prvIdleTask;
+  // If no tasks are ready to run, return the idle task
+  return prvIdleTask;
 }
 
 // Maybe make this return a STATUS?
-static void prvAddTaskToBlockedList(TaskNode *task)
+static void
+prvAddTaskToBlockedList (TaskNode *task)
 {
-	task->next = NULL;
+  task->next = NULL;
 
-	if (prvBlockedTasks == NULL)
-	{
-		prvBlockedTasks = task;
-		return;
-	}
+  if (prvBlockedTasks == NULL)
+    {
+      prvBlockedTasks = task;
+      return;
+    }
 
-	TaskNode *cur = prvBlockedTasks;
+  TaskNode *cur = prvBlockedTasks;
 
-	while (cur->next != NULL)
-	{
-		cur = cur->next;
-	}
+  while (cur->next != NULL)
+    {
+      cur = cur->next;
+    }
 
-	cur->next = task;
+  cur->next = task;
 }
 
-static void prvUnblockDelayedTasksReadyToUnblock()
+static void
+prvUnblockDelayedTasksReadyToUnblock ()
 {
-	TaskNode *cur = prvBlockedTasks;
-	TaskNode *prev = NULL;
+  TaskNode *cur = prvBlockedTasks;
+  TaskNode *prev = NULL;
 
-	if (cur == NULL)
-	{
-		// Nothing blocked, nothing to do
-		return;
-	}
+  if (cur == NULL)
+    {
+      // Nothing blocked, nothing to do
+      return;
+    }
 
-	if (cur->next == NULL)
-	{
-		// This is the only node
-		if (cur->taskTCB->delayedUntil == msTicks)
-		{
-			// Remove the task
-			prvBlockedTasks = NULL;
-			prvAddTaskNodeToReadyList(cur);
-			return;
-		}
-	}
+  if (cur->next == NULL)
+    {
+      // This is the only node
+      if (cur->taskTCB->delayedUntil == msTicks)
+        {
+          // Remove the task
+          prvBlockedTasks = NULL;
+          prvAddTaskNodeToReadyList (cur);
+          return;
+        }
+    }
 
-	while (cur != NULL)
-	{
-		TaskNode *tempNext = cur->next;
-		if (cur->taskTCB->delayedUntil == msTicks)
-		{
-			// Add it to the ready list and remove from the blocked list
-			if (prev == NULL)
-			{
-				prvBlockedTasks = cur->next;
-				prvAddTaskNodeToReadyList(cur);
-			}
-			else
-			{
-				prev->next = cur->next;
-				prvAddTaskNodeToReadyList(cur);
-			}
-		}
-		else
-		{
-			prev = cur;
-		}
-		cur = tempNext;
-	}
+  while (cur != NULL)
+    {
+      TaskNode *tempNext = cur->next;
+      if (cur->taskTCB->delayedUntil == msTicks)
+        {
+          // Add it to the ready list and remove from the blocked list
+          if (prev == NULL)
+            {
+              prvBlockedTasks = cur->next;
+              prvAddTaskNodeToReadyList (cur);
+            }
+          else
+            {
+              prev->next = cur->next;
+              prvAddTaskNodeToReadyList (cur);
+            }
+        }
+      else
+        {
+          prev = cur;
+        }
+      cur = tempNext;
+    }
 }
 
-static TaskNode *createIdleTask()
+static TaskNode *
+createIdleTask ()
 {
-	idleTaskTCBptr->sp = initTaskStackFrame(idleTaskStack, &idleTask);
-	idleTaskTCBptr->priority = 0;
-	idleTaskTCBptr->id = prvCurTaskIDNum;
-	idleTaskTCBptr->stackFrameLowerBoundAddr = &idleTaskStack[0];
-	idleTaskNodePtr->taskTCB = idleTaskTCBptr;
-	idleTaskNodePtr->next = NULL;
-	prvCurTaskIDNum++;
+  idleTaskTCBptr->sp = initTaskStackFrame (idleTaskStack, &idleTask);
+  idleTaskTCBptr->priority = 0;
+  idleTaskTCBptr->id = prvCurTaskIDNum;
+  idleTaskTCBptr->stackFrameLowerBoundAddr = &idleTaskStack[0];
+  idleTaskNodePtr->taskTCB = idleTaskTCBptr;
+  idleTaskNodePtr->next = NULL;
+  prvCurTaskIDNum++;
 
-	return idleTaskNodePtr;
+  return idleTaskNodePtr;
 }
 
-static void idleTask()
+static void
+idleTask ()
 {
-	for (;;)
-	{
-		__asm volatile("wfi");
-	}
+  for (;;)
+    {
+      __asm volatile ("wfi");
+    }
 }
 
-static void prvCheckCurTaskForStackOverflow()
+static void
+prvCheckCurTaskForStackOverflow ()
 {
-	uint32_t *curTaskStackFrameLowerBound;
-	systemENTER_CRITICAL();
-	{
-		curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
-	}
-	systemEXIT_CRITICAL();
+  uint32_t *curTaskStackFrameLowerBound;
+  systemENTER_CRITICAL ();
+  {
+    curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
+  }
+  systemEXIT_CRITICAL ();
 
-	if ((*curTaskStackFrameLowerBound != STACK_OVERFLOW_CANARY_VALUE) || (*(curTaskStackFrameLowerBound + 1) != STACK_OVERFLOW_CANARY_VALUE))
-	{
-		handleStackOverflow();
-	}
+  if ((*curTaskStackFrameLowerBound != STACK_OVERFLOW_CANARY_VALUE)
+      || (*(curTaskStackFrameLowerBound + 1) != STACK_OVERFLOW_CANARY_VALUE))
+    {
+      handleStackOverflow ();
+    }
 }
 
-void __attribute__((weak)) handleStackOverflow()
+void __attribute__ ((weak))
+handleStackOverflow ()
 {
-	for (;;)
-	{
-	}
+  for (;;)
+    {
+    }
 }
 
-uint32_t getCurTaskStackHighWatermark()
+uint32_t
+getCurTaskStackHighWatermark ()
 {
-	uint32_t *curTaskStackFrameLowerBound;
-	systemENTER_CRITICAL();
-	{
-		curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
-	}
-	systemEXIT_CRITICAL();
+  uint32_t *curTaskStackFrameLowerBound;
+  systemENTER_CRITICAL ();
+  {
+    curTaskStackFrameLowerBound = curTask->taskTCB->stackFrameLowerBoundAddr;
+  }
+  systemEXIT_CRITICAL ();
 
-	curTaskStackFrameLowerBound += 2; // Skip the 2 canary values (assumes no stack overflow)
+  curTaskStackFrameLowerBound
+      += 2; // Skip the 2 canary values (assumes no stack overflow)
 
-	// 1 word = 4 bytes = 32 bits
-	uint32_t amtWordsAvailable = 0;
+  // 1 word = 4 bytes = 32 bits
+  uint32_t amtWordsAvailable = 0;
 
-	while (*(curTaskStackFrameLowerBound) == STACK_USAGE_WATERMARK)
-	{
-		curTaskStackFrameLowerBound++;
-		amtWordsAvailable++;
-	}
+  while (*(curTaskStackFrameLowerBound) == STACK_USAGE_WATERMARK)
+    {
+      curTaskStackFrameLowerBound++;
+      amtWordsAvailable++;
+    }
 
-	return amtWordsAvailable;
+  return amtWordsAvailable;
 }
