@@ -11,13 +11,13 @@ static uint32_t idleTaskStack[STACK_SIZE];
 static TCB idleTaskTCB;
 static TCB *idleTaskTCBptr = &idleTaskTCB;
 static TaskNode idleTaskNode;
+static TaskNode *prvIdleTask;
 static TaskNode *idleTaskNodePtr = &idleTaskNode;
 
 static STATUS prvAddTaskNodeToReadyList(TaskNode *task);
 static TaskNode *prvGetHighestTaskReadyToExecute();
 static void prvAddTaskToBlockedList(TaskNode *task);
 static void prvUnblockDelayedTasksReadyToUnblock();
-static TaskNode *prvIdleTask;
 static TaskNode *createIdleTask();
 static void idleTask();
 static void prvCheckCurTaskForStackOverflow();

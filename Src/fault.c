@@ -11,8 +11,7 @@ __attribute((naked)) uint32_t *systemGet_Fault_SP(__attribute__((unused)) uint32
 }
 
 /*
- * Gets stack frame and pushes to non-volatile flash memory
- * then waits for Watchdog to reset.
+ * Gets stack frame and pushes to non-volatile flash memory.
  * */
 
 void systemHandle_Fault(uint32_t *faultSP)
