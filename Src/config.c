@@ -70,6 +70,49 @@ configureInterruptPriorities ()
   SHPR3 |= (0xE0U << SYSTICK_PRIORITY_START_BIT);
 }
 
+static void
+configureMPU ()
+{
+  uint32_t flashTextStartAddr = (uint32_t) &flash_text_start;
+  uint32_t flashTextEndAddr = (uint32_t) &flash_text_end;
+
+  uint32_t codeMemorySizeInBytes
+    = flashTextEndAddr - flashTextStartAddr;
+
+  int mpuRegionSizeExponent;
+
+  for (int i = 0; i < 32; i++)
+    {
+      if ((1U << i) >= codeMemorySizeInBytes)
+	{
+	  mpuRegionSizeExponent = i - 1;
+	  break;
+	}
+    }
+
+
+  uint32_t alignedBase
+    = flashTextStartAddr & ~((1U << (mpuRegionSizeExponent + 1)) - 1);
+
+  MPU_CTRL |= (1U << MPU_CTRL_ENABLE_BIT);
+  MPU_CTRL |= (1U << MPU_CTRL_PRIVDEFENA_BIT);
+
+  MPU_RNR |= 0U; /* Region 0 protects system code (.text in flash) */
+
+  MPU_RBAR = alignedBase;
+
+  MPU_RASR |= (1U << MPU_RASR_ENABLE_BIT);
+  MPU_RASR |= (mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
+
+  /* SCB = 0b001 TEX = 0b000
+   * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
+   * */
+  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_START_BIT);
+  MPU_RASR |= (1U << (MPU_RASR_ATTR_START_BIT + 1));
+  MPU_RASR &= ~(1U << (MPU_RASR_ATTRS_START_BIT + 2));
+  MPU_RASR &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
+}
+
 void
 configureAll ()
 {
@@ -79,4 +122,5 @@ configureAll ()
   configureGreenLED ();
   configureOrangeLED ();
   configureInterruptPriorities ();
+  configureMPU ();
 }

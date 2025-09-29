@@ -7,6 +7,9 @@
 
 #include "mcu_macros.h"
 
+extern uint32_t const flash_text_start;
+extern uint32_t const flash_text_end;
+
 void configureAll ();
 
 #endif

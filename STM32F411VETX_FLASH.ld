@@ -64,6 +64,7 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
+    flash_text_start = .;
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
@@ -74,6 +75,7 @@ SECTIONS
     KEEP (*(.fini))
 
     . = ALIGN(4);
+    flash_text_end = .;
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
 
