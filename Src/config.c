@@ -2,7 +2,7 @@
 
 // Configuration functions
 static void
-configureClock ()
+configureClock()
 {
   // Clock Configuration - SYSCLK sourced from HSE - 8 Mhz
   RCC_CR |= (1 << 16); // HSEON -> 1
@@ -18,7 +18,7 @@ configureClock ()
 }
 
 static void
-configureBlueLED ()
+configureBlueLED()
 {
   // Enable the RCC Peripheral Clock for GPIOD
   RCC_AHB1ENR |= (1 << 3);
@@ -29,7 +29,7 @@ configureBlueLED ()
 }
 
 static void
-configureGreenLED ()
+configureGreenLED()
 {
   // Clock already enabled, since blue LED is also on GPIOD
   // Green LED: PD12
@@ -39,7 +39,7 @@ configureGreenLED ()
 }
 
 static void
-configureOrangeLED ()
+configureOrangeLED()
 {
   // Orange LED: PD13
   GPIOD_MODER &= ~(1U << 26);
@@ -48,7 +48,7 @@ configureOrangeLED ()
 }
 
 static void
-configureSystickInterrupts ()
+configureSystickInterrupts()
 {
   SYSTICK_CSR &= ~(1U << 0);    // Disable timer
   SYSTICK_CSR |= (1 << 2);      // Use SYSCLK
@@ -59,7 +59,7 @@ configureSystickInterrupts ()
 }
 
 static void
-configureInterruptPriorities ()
+configureInterruptPriorities()
 {
   // PendSV to the lowest priority (240 because only top 4 bits are used)
   SHPR3 &= ~(0xFFU << PENDSV_PRIORITY_START_BIT);
@@ -71,56 +71,65 @@ configureInterruptPriorities ()
 }
 
 static void
-configureMPU ()
+configureMPU()
 {
-  uint32_t flashTextStartAddr = (uint32_t) &flash_text_start;
-  uint32_t flashTextEndAddr = (uint32_t) &flash_text_end;
+  uint32_t flashTextStartAddr = (uint32_t)&flash_text_start;
+  uint32_t flashTextEndAddr = (uint32_t)&flash_text_end;
 
-  uint32_t codeMemorySizeInBytes
-    = flashTextEndAddr - flashTextStartAddr;
+  uint32_t codeMemorySizeInBytes = flashTextEndAddr - flashTextStartAddr;
 
   int mpuRegionSizeExponent;
 
   for (int i = 0; i < 32; i++)
+  {
+    if ((1U << i) >= codeMemorySizeInBytes)
     {
-      if ((1U << i) >= codeMemorySizeInBytes)
-	{
-	  mpuRegionSizeExponent = i - 1;
-	  break;
-	}
+      mpuRegionSizeExponent = i - 1;
+      break;
     }
+  }
 
+  uint32_t alignedBase = flashTextStartAddr & ~((1U << (mpuRegionSizeExponent + 1)) - 1);
 
-  uint32_t alignedBase
-    = flashTextStartAddr & ~((1U << (mpuRegionSizeExponent + 1)) - 1);
+  
+  MPU_RNR = 0U; /* Region 0 protects system code (.text in flash) */
+  
+  MPU_RBAR = alignedBase;
+
+  MPU_RASR |= (mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
+  
+  /* SBC = 0b001 TEX = 0b000
+  * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
+  * */
+  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_B_BIT);
+  MPU_RASR |= (1U << MPU_RASR_ATTRS_C_BIT);
+  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_S_BIT);
+  MPU_RASR &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
+  
+  /* AP = 0b110 = read only for both privileged and unprivileged code */
+  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_AP_START_BIT);
+  MPU_RASR |= (0x3U << (MPU_RASR_ATTRS_AP_START_BIT + 1));
+  
+  /* XN = 0 = this section can and should be executed */
+  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_XN_BIT);
+
+  /* Enable MPU and the current region */
+  MPU_RASR |= (1U << MPU_RASR_ENABLE_BIT);
 
   MPU_CTRL |= (1U << MPU_CTRL_ENABLE_BIT);
   MPU_CTRL |= (1U << MPU_CTRL_PRIVDEFENA_BIT);
 
-  MPU_RNR |= 0U; /* Region 0 protects system code (.text in flash) */
-
-  MPU_RBAR = alignedBase;
-
-  MPU_RASR |= (1U << MPU_RASR_ENABLE_BIT);
-  MPU_RASR |= (mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
-
-  /* SCB = 0b001 TEX = 0b000
-   * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
-   * */
-  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_START_BIT);
-  MPU_RASR |= (1U << (MPU_RASR_ATTR_START_BIT + 1));
-  MPU_RASR &= ~(1U << (MPU_RASR_ATTRS_START_BIT + 2));
-  MPU_RASR &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
+  __asm volatile("dsb\n");
+  __asm volatile("isb\n");
 }
 
-void
-configureAll ()
+void configureAll()
 {
-  configureClock ();
-  configureSystickInterrupts ();
-  configureBlueLED ();
-  configureGreenLED ();
-  configureOrangeLED ();
-  configureInterruptPriorities ();
-  configureMPU ();
+  configureClock();
+  configureSystickInterrupts();
+  configureBlueLED();
+  configureGreenLED();
+  configureOrangeLED();
+  configureInterruptPriorities();
+  configureMPU();
 }
