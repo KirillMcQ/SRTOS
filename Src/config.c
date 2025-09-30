@@ -96,28 +96,30 @@ configureMPU()
   
   MPU_RBAR = alignedBase;
 
-  MPU_RASR |= ((uint32_t) mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
+  uint32_t rasr = 0;
+  rasr |= ((uint32_t) mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
   
   /* SBC = 0b001 TEX = 0b000
   * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
   * */
-  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_B_BIT);
-  MPU_RASR |= (1U << MPU_RASR_ATTRS_C_BIT);
-  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_S_BIT);
-  MPU_RASR &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
+  rasr &= ~(1U << MPU_RASR_ATTRS_B_BIT);
+  rasr |= (1U << MPU_RASR_ATTRS_C_BIT);
+  rasr &= ~(1U << MPU_RASR_ATTRS_S_BIT);
+  rasr &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
   
   /* AP = 0b110 = read only for both privileged and unprivileged code */
-  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_AP_START_BIT);
-  MPU_RASR |= (0x3U << (MPU_RASR_ATTRS_AP_START_BIT + 1));
+  rasr &= ~(1U << MPU_RASR_ATTRS_AP_START_BIT);
+  rasr |= (0x3U << (MPU_RASR_ATTRS_AP_START_BIT + 1));
   
   /* XN = 0 = this section can and should be executed */
-  MPU_RASR &= ~(1U << MPU_RASR_ATTRS_XN_BIT);
+  rasr &= ~(1U << MPU_RASR_ATTRS_XN_BIT);
 
   /* Enable MPU and the current region */
-  MPU_RASR |= (1U << MPU_RASR_ENABLE_BIT);
+  rasr |= (1U << MPU_RASR_ENABLE_BIT);
 
-  MPU_CTRL |= (1U << MPU_CTRL_ENABLE_BIT);
-  MPU_CTRL |= (1U << MPU_CTRL_PRIVDEFENA_BIT);
+  MPU_RASR = rasr;
+
+  MPU_CTRL = (1U << MPU_CTRL_ENABLE_BIT) | (1U << MPU_CTRL_PRIVDEFENA_BIT);
 
   __asm volatile("dsb\n");
   __asm volatile("isb\n");
