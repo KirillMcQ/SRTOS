@@ -96,7 +96,7 @@ configureMPU()
   
   MPU_RBAR = alignedBase;
 
-  MPU_RASR |= (mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
+  MPU_RASR |= ((uint32_t) mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
   
   /* SBC = 0b001 TEX = 0b000
   * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
@@ -123,7 +123,8 @@ configureMPU()
   __asm volatile("isb\n");
 }
 
-void configureAll()
+void
+configureAll()
 {
   configureClock();
   configureSystickInterrupts();

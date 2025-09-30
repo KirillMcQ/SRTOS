@@ -30,10 +30,10 @@
 #define FLASH_CR_STRT_BIT 16
 #define FLASH_CR_PG_BIT 0
 #define FAULT_DATA_FLASH_START_ADDR 0x08060000
-#define MPU_CTRL 0xE000ED94
-#define MPU_RNR 0xE000ED98
-#define MPU_RBAR 0xE000ED9C
-#define MPU_RASR 0xE000EDA0
+#define MPU_CTRL *((volatile uint32_t *)(0xE000ED94))
+#define MPU_RNR *((volatile uint32_t *)(0xE000ED98))
+#define MPU_RBAR *((volatile uint32_t *)(0xE000ED9C))
+#define MPU_RASR *((volatile uint32_t *)(0xE000EDA0))
 #define MPU_CTRL_ENABLE_BIT 0
 #define MPU_CTRL_PRIVDEFENA_BIT 2
 #define MPU_RBR_ADDR_START_BIT 5
