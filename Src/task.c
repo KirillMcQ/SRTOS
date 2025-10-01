@@ -166,6 +166,11 @@ SVC_Handler ()
   TCB *tcbToStart = curTask->taskTCB;
   uint32_t spToStart = (uint32_t)tcbToStart->sp;
 
+  /* Ensure Thread Mode is executed in unpriviledged mode */
+  __asm volatile ("mrs r0, CONTROL\n"
+                  "orr r0, r0, #1\n"
+                  "msr CONTROL, r0\n");
+
   __asm volatile ("ldr r0, %[sp]\n"
                   "ldmia r0!, {r4-r11}\n"
                   "msr PSP, r0\n"
