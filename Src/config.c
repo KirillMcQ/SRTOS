@@ -99,7 +99,7 @@ configureMPU()
   uint32_t rasr = 0;
   rasr |= ((uint32_t) mpuRegionSizeExponent << MPU_RASR_SIZE_START_BIT);
   
-  /* SBC = 0b001 TEX = 0b000
+  /* SCB = 0b010 TEX = 0b000
   * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
   * */
   rasr &= ~(1U << MPU_RASR_ATTRS_B_BIT);

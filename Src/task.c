@@ -166,22 +166,20 @@ SVC_Handler ()
 {
   TCB *tcbToStart = curTask->taskTCB;
   uint32_t spToStart = (uint32_t)tcbToStart->sp;
-
-  prvConfigureMpuRegionForCurTaskStack();
-
+  
   /* Ensure Thread Mode is executed in unprivileged mode */
   __asm volatile ("mrs r0, CONTROL\n"
-                  "orr r0, r0, #1\n"
-                  "msr CONTROL, r0\n"
-		  "isb\n");
-
-  __asm volatile ("ldr r0, %[sp]\n"
-                  "ldmia r0!, {r4-r11}\n"
-                  "msr PSP, r0\n"
-                  "ldr lr, =0xFFFFFFFD\n"
-                  "bx lr\n"
-                  :
-                  : [sp] "m"(spToStart));
+    "orr r0, r0, #1\n"
+    "msr CONTROL, r0\n"
+    "isb\n");
+    
+    __asm volatile ("ldr r0, %[sp]\n"
+      "ldmia r0!, {r4-r11}\n"
+      "msr PSP, r0\n"
+      "ldr lr, =0xFFFFFFFD\n"
+      "bx lr\n"
+      :
+      : [sp] "m"(spToStart));
 }
 
 void
@@ -189,6 +187,7 @@ startScheduler ()
 {
   prvIdleTask = createIdleTask ();
   curTask = prvGetHighestTaskReadyToExecute ();
+  prvConfigureMpuRegionForCurTaskStack ();
   __asm volatile ("svc #0");
 }
 
@@ -449,5 +448,43 @@ getCurTaskStackHighWatermark ()
 static void
 prvConfigureMpuRegionForCurTaskStack ()
 {
+  /* Region 1 protects the current task's stack */
+  MPU_RNR = 1U;
 
+  uint32_t stackSizeInBytes = STACK_SIZE * 4;
+
+  uint32_t mpuSizeField;
+
+  for (int i = 0; i < 32; i++)
+    {
+      if ((1U << i) >= stackSizeInBytes)
+        {
+          mpuSizeField = i - 1;
+        }
+    }
+  
+    uint32_t alignedBaseAddr = (curTask->taskTCB->stackFrameLowerBoundAddr) & ((1U << (mpuSizeField + 1)) - 1);
+
+    MPU_RBAR = alignedBaseAddr;
+
+    uint32_t rasr;
+
+    rasr |= (1U << MPU_RASR_ENABLE_BIT);
+    rasr |= (mpuSizeField << MPU_RASR_SIZE_START_BIT);
+
+    /* SCB = 0b110 TEX = 0b000
+    * recommended by https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
+    * */
+
+    rasr &= ~(1U << MPU_RASR_ATTRS_B_BIT);
+    rasr |= (1U << MPU_RASR_ATTRS_C_BIT);
+    rasr |= (1U << MPU_RASR_ATTRS_S_BIT);
+    rasr &= ~(0x7U << MPU_RASR_ATTRS_TEX_START_BIT);
+
+    /* AP = 0b011 = rw for both privilege levels*/
+    rasr |= (0x3U << MPU_RASR_ATTRS_AP_START_BIT);
+    rasr &= ~(1U << (MPU_RASR_ATTRS_AP_START_BIT + 2));
+
+    /* XN = 1 = Nothing should be exceuted from a task's stack */
+    rasr |= (1U << MPU_RASR_ATTRS_XN_BIT);
 }
