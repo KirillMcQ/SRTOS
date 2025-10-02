@@ -21,6 +21,7 @@ static void prvUnblockDelayedTasksReadyToUnblock ();
 static TaskNode *createIdleTask ();
 static void idleTask ();
 static void prvCheckCurTaskForStackOverflow ();
+static void prvConfigureMpuRegionForCurTaskStack ();
 
 uint32_t *
 initTaskStackFrame (uint32_t taskStack[], void (*taskFunc) (void))
@@ -166,10 +167,13 @@ SVC_Handler ()
   TCB *tcbToStart = curTask->taskTCB;
   uint32_t spToStart = (uint32_t)tcbToStart->sp;
 
-  /* Ensure Thread Mode is executed in unpriviledged mode */
+  prvConfigureMpuRegionForCurTaskStack();
+
+  /* Ensure Thread Mode is executed in unprivileged mode */
   __asm volatile ("mrs r0, CONTROL\n"
                   "orr r0, r0, #1\n"
-                  "msr CONTROL, r0\n");
+                  "msr CONTROL, r0\n"
+		  "isb\n");
 
   __asm volatile ("ldr r0, %[sp]\n"
                   "ldmia r0!, {r4-r11}\n"
@@ -440,4 +444,10 @@ getCurTaskStackHighWatermark ()
     }
 
   return amtWordsAvailable;
+}
+
+static void
+prvConfigureMpuRegionForCurTaskStack ()
+{
+
 }
