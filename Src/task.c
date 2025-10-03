@@ -448,26 +448,29 @@ getCurTaskStackHighWatermark ()
 static void
 prvConfigureMpuRegionForCurTaskStack ()
 {
-  /* Region 1 protects the current task's stack */
-  MPU_RNR = 1U;
+  /* Region 3 protects the current task's stack */
+  MPU_RNR = 3U;
 
   uint32_t stackSizeInBytes = STACK_SIZE * 4;
 
   uint32_t mpuSizeField;
 
-  for (int i = 0; i < 32; i++)
+  for (uint32_t i = 0; i < 32; i++)
     {
       if ((1U << i) >= stackSizeInBytes)
         {
           mpuSizeField = i - 1;
+          break;
         }
     }
   
-    uint32_t alignedBaseAddr = (curTask->taskTCB->stackFrameLowerBoundAddr) & ((1U << (mpuSizeField + 1)) - 1);
+    uint32_t curBaseAddr = (uint32_t)(curTask->taskTCB->stackFrameLowerBoundAddr);
+
+    uint32_t alignedBaseAddr = curBaseAddr & ~((1U << (mpuSizeField + 1)) - 1);
 
     MPU_RBAR = alignedBaseAddr;
 
-    uint32_t rasr;
+    uint32_t rasr = 0;
 
     rasr |= (1U << MPU_RASR_ENABLE_BIT);
     rasr |= (mpuSizeField << MPU_RASR_SIZE_START_BIT);
@@ -485,6 +488,11 @@ prvConfigureMpuRegionForCurTaskStack ()
     rasr |= (0x3U << MPU_RASR_ATTRS_AP_START_BIT);
     rasr &= ~(1U << (MPU_RASR_ATTRS_AP_START_BIT + 2));
 
-    /* XN = 1 = Nothing should be exceuted from a task's stack */
+    /* XN = 1 = Nothing should be executed from a task's stack */
     rasr |= (1U << MPU_RASR_ATTRS_XN_BIT);
+
+    MPU_RASR = rasr;
+
+    __asm volatile("dsb\n");
+    __asm volatile("isb\n");
 }

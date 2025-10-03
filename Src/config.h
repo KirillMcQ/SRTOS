@@ -10,6 +10,10 @@
 extern uint32_t const flash_text_start;
 extern uint32_t const flash_text_end;
 
+extern uint32_t const sram_start;
+extern uint32_t const sram_end;
+extern uint32_t const sram_size;
+
 void configureAll ();
 
 #endif

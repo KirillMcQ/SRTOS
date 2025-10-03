@@ -71,7 +71,7 @@ configureInterruptPriorities()
 }
 
 static void
-configureMPU()
+configureMpuFlashRegion ()
 {
   uint32_t flashTextStartAddr = (uint32_t)&flash_text_start;
   uint32_t flashTextEndAddr = (uint32_t)&flash_text_end;
@@ -125,6 +125,31 @@ configureMPU()
   __asm volatile("isb\n");
 }
 
+static void
+configureMpuSramRegion ()
+{
+  uint32_t sramStartAddr = &sram_start;
+  uint32_t sramEndAddr = &sram_end;
+  uint32_t sramSize = &sram_size;
+
+  /* Region 1 protects the system SRAM */
+  MPU_RNR = 1U;
+
+  uint32_t mpuSizeField;
+
+  for (int i = 0; i < 100; i++)
+    {
+      if ((1U << i) >= sramSize)
+	{
+	  mpuSizeField = i - 1;
+	}
+    }
+
+  uint32_t alignedBaseAddr = sramStartAddr & ~((1U << (mpuSizeField + 1)) - 1);
+
+  MPU_RBAR = alignedBaseAddr;
+}
+
 void
 configureAll()
 {
@@ -134,5 +159,6 @@ configureAll()
   configureGreenLED();
   configureOrangeLED();
   configureInterruptPriorities();
-  configureMPU();
+  configureMpuFlashRegion();
+  configureMpuSramRegion();
 }

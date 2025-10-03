@@ -49,6 +49,12 @@ MEMORY
   FAULT_DATA (xrw) : ORIGIN = 0x08060000,  LENGTH = 128K
 }
 
+/* RAM bounds for MPU use */
+PROVIDE(sram_start = ORIGIN(RAM));
+PROVIDE(sram_end   = ORIGIN(RAM) + LENGTH(RAM));
+PROVIDE(sram_size  = LENGTH(RAM));
+
+
 /* Sections */
 SECTIONS
 {
