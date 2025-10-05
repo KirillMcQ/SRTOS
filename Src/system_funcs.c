@@ -3,8 +3,9 @@
 void
 systemENTER_CRITICAL ()
 {
-  // Mask priorities 0xE0 to 0xFF, which includes SysTick_Handler and
-  // PendSV_Handler
+  /* Mask priorities 0xE0 to 0xFF, which includes
+   * SysTick_Handler and PendSV_Handler
+   */
   __asm volatile ("MOV r0, #0xE0\n"
                   "MSR BASEPRI, r0\n"
                   "ISB\n");
