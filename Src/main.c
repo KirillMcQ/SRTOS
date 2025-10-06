@@ -2,7 +2,7 @@
 #include "task.h"
 #include <stdint.h>
 
-// Static allocation, user must provide these memory buffers
+/* Static allocation, user must provide these memory buffers */
 uint32_t task1Stack[STACK_SIZE];
 uint32_t task2Stack[STACK_SIZE];
 TCB task1TCB;

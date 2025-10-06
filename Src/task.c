@@ -34,22 +34,22 @@ initTaskStackFrame (uint32_t taskStack[], void (*taskFunc) (void))
   taskStack[0] = STACK_OVERFLOW_CANARY_VALUE;
   taskStack[1] = STACK_OVERFLOW_CANARY_VALUE;
 
-  taskStack[STACK_SIZE - 1] = 0x01000000;                 // xPSR
-  taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; // PC
-  taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;                 // LR
-  taskStack[STACK_SIZE - 4] = 0x00000000;                 // R12
-  taskStack[STACK_SIZE - 5] = 0x00000000;                 // R3
-  taskStack[STACK_SIZE - 6] = 0x00000000;                 // R2
-  taskStack[STACK_SIZE - 7] = 0x00000000;                 // R1
-  taskStack[STACK_SIZE - 8] = 0x00000000;                 // R0
-  taskStack[STACK_SIZE - 9] = 0x00000000;                 // R11
-  taskStack[STACK_SIZE - 10] = 0x00000000;                // R10
-  taskStack[STACK_SIZE - 11] = 0x00000000;                // R9
-  taskStack[STACK_SIZE - 12] = 0x00000000;                // R8
-  taskStack[STACK_SIZE - 13] = 0x00000000;                // R7
-  taskStack[STACK_SIZE - 14] = 0x00000000;                // R6
-  taskStack[STACK_SIZE - 15] = 0x00000000;                // R5
-  taskStack[STACK_SIZE - 16] = 0x00000000;                // R4
+  taskStack[STACK_SIZE - 1] = 0x01000000;                 /* xPSR */
+  taskStack[STACK_SIZE - 2] = ((uint32_t)taskFunc) | 0x1; /* PC */
+  taskStack[STACK_SIZE - 3] = 0xFFFFFFFD;                 /* LR */
+  taskStack[STACK_SIZE - 4] = 0x00000000;                 /* R12 */
+  taskStack[STACK_SIZE - 5] = 0x00000000;                 /* R3 */
+  taskStack[STACK_SIZE - 6] = 0x00000000;                 /* R2 */
+  taskStack[STACK_SIZE - 7] = 0x00000000;                 /* R1 */
+  taskStack[STACK_SIZE - 8] = 0x00000000;                 /* R0 */
+  taskStack[STACK_SIZE - 9] = 0x00000000;                 /* R11 */
+  taskStack[STACK_SIZE - 10] = 0x00000000;                /* R10 */
+  taskStack[STACK_SIZE - 11] = 0x00000000;                /* R9 */
+  taskStack[STACK_SIZE - 12] = 0x00000000;                /* R8 */
+  taskStack[STACK_SIZE - 13] = 0x00000000;                /* R7 */
+  taskStack[STACK_SIZE - 14] = 0x00000000;                /* R6 */
+  taskStack[STACK_SIZE - 15] = 0x00000000;                /* R5 */
+  taskStack[STACK_SIZE - 16] = 0x00000000;                /* R4 */
 
   return &taskStack[STACK_SIZE - 16];
 }
@@ -72,7 +72,7 @@ createTask (uint32_t taskStack[], void (*taskFunc) (void),
   prvCurTaskIDNum++;
   userAllocatedTCB->stackFrameLowerBoundAddr = &taskStack[0];
 
-  // Insert at end of tasks linked list
+  /* Insert at end of tasks linked list */
   userAllocatedTaskNode->taskTCB = userAllocatedTCB;
   userAllocatedTaskNode->next = NULL;
 
@@ -103,7 +103,7 @@ SysTick_Handler ()
   TaskNode *highestPriorityPossibleExecute
       = prvGetHighestTaskReadyToExecute ();
 
-  // Check if a higher priority task is ready to execute
+  /* Check if a higher priority task is ready to execute */
   if (curExecutingPriority < highestPriorityPossibleExecute->taskTCB->priority)
     {
       prvNextTask = highestPriorityPossibleExecute;
@@ -115,7 +115,7 @@ SysTick_Handler ()
     {
       if (highestPriorityPossibleExecute->taskTCB->id != curTask->taskTCB->id)
         {
-          // There is another task of equal priority, time to switch.
+          /* There is another task of equal priority, time to switch. */
           prvNextTask = highestPriorityPossibleExecute;
           setPendSVPending ();
           return;
@@ -123,7 +123,7 @@ SysTick_Handler ()
     }
   else
     {
-      // There is another task of equal priority, time to switch.
+      /* There is another task of equal priority, time to switch. */
       prvNextTask = curTask->next;
       setPendSVPending ();
       return;
@@ -207,13 +207,13 @@ taskDelay (uint32_t ticksToDelay)
 
     curTask->taskTCB->delayedUntil = msTicks + ticksToDelay;
 
-    // Remove the task from the ready list
+    /* Remove the task from the ready list */
     TaskNode *cur = readyTasksList[curTaskPriority];
     TaskNode *prev = NULL;
 
     if (cur->next == NULL)
       {
-        // This is the only task for this priority, and it must be curTask
+        /* This is the only task for this priority, and it must be curTask */
         readyTasksList[curTaskPriority] = NULL;
         prvNextTask = prvGetHighestTaskReadyToExecute ();
         prvAddTaskToBlockedList (curTask);
@@ -222,7 +222,7 @@ taskDelay (uint32_t ticksToDelay)
         return;
       }
 
-    // Check if curTask is the head of the priority
+    /* Check if curTask is the head of the priority */
     if (cur->taskTCB->id == curTaskID)
       {
         readyTasksList[curTaskPriority] = curTask->next;
@@ -234,7 +234,7 @@ taskDelay (uint32_t ticksToDelay)
         return;
       }
 
-    // There is more than one task for the current priority
+    /* There is more than one task for the current priority */
     while (cur->taskTCB->id != curTaskID)
       {
         prev = cur;
@@ -254,7 +254,7 @@ taskDelay (uint32_t ticksToDelay)
 static STATUS
 prvAddTaskNodeToReadyList (TaskNode *task)
 {
-  // Safeguards
+  /* Safeguards */
   if (task->taskTCB->priority >= MAX_PRIORITIES)
     {
       return STATUS_FAILURE;
@@ -268,12 +268,12 @@ prvAddTaskNodeToReadyList (TaskNode *task)
 
   if (curHead == NULL)
     {
-      // This is the first node for this priority
+      /* This is the first node for this priority */
       readyTasksList[curPriority] = task;
       return STATUS_SUCCESS;
     }
 
-  // Get to the end of the LL
+  /* Get to the end of the LL */
   while (curHead->next != NULL)
     {
       curHead = curHead->next;
@@ -286,7 +286,7 @@ prvAddTaskNodeToReadyList (TaskNode *task)
 static TaskNode *
 prvGetHighestTaskReadyToExecute ()
 {
-  int idx = MAX_PRIORITIES - 1; // Highest Priority Possible
+  int idx = MAX_PRIORITIES - 1;
 
   while (idx >= 0)
     {
@@ -297,11 +297,10 @@ prvGetHighestTaskReadyToExecute ()
       --idx;
     }
 
-  // If no tasks are ready to run, return the idle task
   return prvIdleTask;
 }
 
-// Maybe make this return a STATUS?
+/* Maybe make this return a STATUS? */
 static void
 prvAddTaskToBlockedList (TaskNode *task)
 {
@@ -331,16 +330,13 @@ prvUnblockDelayedTasksReadyToUnblock ()
 
   if (cur == NULL)
     {
-      // Nothing blocked, nothing to do
       return;
     }
 
   if (cur->next == NULL)
     {
-      // This is the only node
       if (cur->taskTCB->delayedUntil == msTicks)
         {
-          // Remove the task
           prvBlockedTasks = NULL;
           prvAddTaskNodeToReadyList (cur);
           return;
@@ -352,7 +348,6 @@ prvUnblockDelayedTasksReadyToUnblock ()
       TaskNode *tempNext = cur->next;
       if (cur->taskTCB->delayedUntil == msTicks)
         {
-          // Add it to the ready list and remove from the blocked list
           if (prev == NULL)
             {
               prvBlockedTasks = cur->next;
@@ -421,7 +416,7 @@ handleStackOverflow ()
 }
 
 uint32_t
-getCurTaskStackHighWatermark ()
+getCurTaskWordsAvailable ()
 {
   uint32_t *curTaskStackFrameLowerBound;
   systemENTER_CRITICAL ();
@@ -431,9 +426,8 @@ getCurTaskStackHighWatermark ()
   systemEXIT_CRITICAL ();
 
   curTaskStackFrameLowerBound
-      += 2; // Skip the 2 canary values (assumes no stack overflow)
+      += 2; /* Skip the 2 canary values (assumes no stack overflow) */
 
-  // 1 word = 4 bytes = 32 bits
   uint32_t amtWordsAvailable = 0;
 
   while (*(curTaskStackFrameLowerBound) == STACK_USAGE_WATERMARK)

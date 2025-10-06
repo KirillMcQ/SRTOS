@@ -23,7 +23,7 @@ systemHandle_Fault (uint32_t *faultSP)
   while (FLASH_SR & (1U << FLASH_SR_BSY_BIT))
     ;
 
-  // PSIZE -> 0b10 which is a 32 bit parallelism size
+  /* PSIZE -> 0b10 which is a 32 bit parallelism size */
   FLASH_CR &= ~(1U << FLASH_CR_PSIZE_BIT_START);
   FLASH_CR &= ~(1U << (FLASH_CR_PSIZE_BIT_START + 1));
   FLASH_CR |= (1U << (FLASH_CR_PSIZE_BIT_START + 1));
@@ -31,20 +31,18 @@ systemHandle_Fault (uint32_t *faultSP)
   while (FLASH_SR & (1U << FLASH_SR_BSY_BIT))
     ;
 
-  // Activate Sector Erase
+  /* Activate Sector Erase */
   FLASH_CR |= (1U << FLASH_CR_SER_BIT);
 
-  // Erase Sector 7 (FAULT_DATA)
+  /* Erase Sector 7 (FAULT_DATA) */
   FLASH_CR &= ~(0xFU << FLASH_CR_SNB_BIT_START);
   FLASH_CR |= (0x7U << FLASH_CR_SNB_BIT_START);
 
-  // Start erasing
   FLASH_CR |= (1U << FLASH_CR_STRT_BIT);
 
   while (FLASH_SR & (1U << FLASH_SR_BSY_BIT))
     ;
 
-  // Program data to flash
   FLASH_CR |= (1U << FLASH_CR_PG_BIT);
 
   /*
