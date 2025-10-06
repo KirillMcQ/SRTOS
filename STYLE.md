@@ -15,4 +15,4 @@ All comments in SRTOS, whether single or multiline **must** use C's multiline co
  * */
 ```
 
-This style choice is solely meant to help readability. Multi-line comment syntax just look better. **The best comment syntax for readability is truly no comment at all, so try to write readable code that doesn't need comments.**
+This style choice is solely meant to help readability. Multi-line comment syntax just looks better. **The best comment syntax for readability is truly no comment at all, so try to write readable code that doesn't need comments.**
