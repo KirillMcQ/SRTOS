@@ -1,6 +1,5 @@
 #include "config.h"
 #include "task.h"
-#include <stdint.h>
 
 /* Static allocation, user must provide these memory buffers */
 uint32_t task1Stack[STACK_SIZE];
