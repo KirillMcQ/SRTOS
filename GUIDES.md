@@ -80,9 +80,18 @@ main ()
 
 This will create the task and add it to the ready list. `createTask ()` is defined in much more detail in the documentation, but this will give you a high-level overview.
 
-You must first pass in the stack. This just required referencing the name you gave to the stack above. Next, you must pass the address of the function. After that, you must pass in the priority. Priorites span from 0 ... `MAX_PRIORITIES`
+You must first pass in the stack. This just requires referencing the name you gave to the stack above. Next, you must pass the address of the function. After that, you must pass in the priority. Priorites span from [0 ... `MAX_PRIORITIES` - 1]. `MAX_PRIORITIES` is the maximum number of priorities allowed, starting at 0. This, along with `STACK_SIZE`, is configurable in `kernel_config.h`. Passing in an invalid priority will result in a `STATUS_FAILURE` being returned. Once asserts are added to SRTOS, you can use these status returns to ensure everything is working. Then, you just need to pass in the address of the task's TCB and TaskNode.
 
 ```
   createTask (task1Stack, &task1_blueLED,
               1, &task1TCB, &task1Node);
+```
+
+This will start the scheduler. After creating all tasks, you just need to call `startScheduler ()` to begin execution of tasks. Tasks may **not** be created after the scheduler is started.
+
+```
+startScheduler ();
+while (1)
+  {
+  }
 ```
