@@ -36,3 +36,7 @@ _This section is constantly changing as new features are being added._
 - All source files that contain example usages of SRTOS are located in `Examples/`
 - All source files and markdown files (`.md`) that contain code and information about tests are located in `Tests/`
 - A default startup and linkerscript is provided for the STM32F411E-DISCOVERY. The location of these scripts is not specified here, because they may be changing as the file structure design changes.
+
+## Contributing
+
+Contributions are greatly appreciated and highly recommended. If you have added a feature, port, or bug fix, please create a pull-request. Ensure the code you have written conforms to all rules in `STYLE.md` before creating a request. Please read `DESIGN.md` before altering code to ensure you have a solid grasp on the system's behavior.
