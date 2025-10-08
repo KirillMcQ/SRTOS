@@ -32,8 +32,10 @@ For getting started guides, please refer to `GUIDES.md` in the root directory of
 
 _This section is constantly changing as new features are being added._
 
-- All source files (`.c`) and header files (`.h`) that are required for building SRTOS are located in `Src/`
+- All source files (`.c`) that are required for building SRTOS are located in `Src/`
+- All header files (`.h`) that are required for building SRTOS are located in `Inc/`
 - All source files that contain example usages of SRTOS are located in `Examples/`
+- All source files that contain tests of SRTOS are located in `Tests/`
 - All source files and markdown files (`.md`) that contain code and information about tests are located in `Tests/`
 - A default startup and linkerscript is provided for the STM32F411E-DISCOVERY. The location of these scripts is not specified here, because they may be changing as the file structure design changes.
 
