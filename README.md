@@ -11,6 +11,7 @@ All code is:
 - Statically allocated (no dynamic memory)
 - Built with strict warning flags (`-Wall -Wextra -Werror -pedantic -Wconversion`)
 - Extensively documented for readability
+- Hardware tested
 
 Stack overflow detection and fault handlers are provided by default and developers can override them with custom implementations.  
 SRTOS is meant to be **integrated as a drop-in library** into any bare-metal project by copying the source (`.c`) and header (`.h`) files into your own directory and compiling alongside your `main()` function.
