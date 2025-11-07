@@ -1,32 +1,68 @@
-# SRTOS - Simple RTOS
+# SRTOS — Simple Real-Time Operating System
 
 ## Overview
 
-SRTOS is a simple preemptive Real-Time Operating System (RTOS) specifically developed with safety and learning in mind. All SRTOS code is written with the highest level of safety in mind, and compiled with strict flags. Also, code is heavily-documented on purpose, to ensure a high-level of user understanding. Static-allocation and stack overflow detection are required. Default stack overflow and hardfault handlers are provided, but users are encouraged to provide custom implementations. All SRTOS code strictly conforms to the style guidelines specified in `STYLE.md` in the root directory of this repository. Examples are provided in the `Examples/` directory of this repository, and tests are provided in the `Tests/` directory of this repository. This RTOS is provided as a drop-in library intended for embedded developers. Users can integrate it by simply copying the source (.c) and header (.h) files into their own firmware project and compiling them together with their application.
+**SRTOS** is a small preemptive real-time operating system for STM32 processors.  
+It is designed for **safety, clarity, and learning**, providing a readable reference implementation for embedded developers.
 
-## Targets
+All code is:
 
-Currently, SRTOS is written for the ARM-Cortex M4/M4F processor. Examples will be written for different STM32 boards, but as of now, the STM32F411E-DISCOVERY board is the only board with an example, although it is very simple to write your own SRTOS program for another ARM-CortexM4/M4F board. A portable version of SRTOS is being developed, and all supported boards will be listed in this section as they are updated. Please refer to this list for all portability information.
+- Written in standard C (GNU11)
+- Statically allocated (no dynamic memory)
+- Built with strict warning flags (`-Wall -Wextra -Werror -pedantic -Wconversion`)
+- Extensively documented for readability
 
-- **Boards**
-	- **STM32F411E-DISCOVERY**
-  		- Fully Supported
-- **Processors**
-	- **ARM-Cortex M4/M4F**
-		- Fully supported
+Stack overflow detection and fault handlers are provided by default and developers can override them with custom implementations.  
+SRTOS is meant to be **integrated as a drop-in library** into any bare-metal project by copying the source (`.c`) and header (`.h`) files into your own directory and compiling alongside your `main()` function.
 
-## Compilation
+## Supported Hardware
 
-The easiest way to build and program SRTOS to the STM32F411E-DISCOVERY (or other STM32 boards, when ports are available) is to use the [STM32CUBEIDE](https://www.st.com/en/development-tools/stm32cubeide.html).
+| Component     | Status                                                 |
+| ------------- | ------------------------------------------------------ |
+| **Processor** | ARM Cortex-M4 / M4F — fully supported                  |
+| **Board**     | STM32F411E-DISCO — fully supported                     |
+| **Others**    | Portable version in development; contributions welcome |
 
-SRTOS is compiled using GCC's `arm-none-eabi-gcc` toolchain, with the following custom warning compilation flags: `-Wall -Wextra -Werror -pedantic -Wconversion`
+## Installation and Usage
 
-You don't _need_ to use these flags when compiling, but they are **highly recommended** and **required when contributing** (more on this in the contributing section).
+- **Dependencies**:
+  - `make`
+  - `gcc-arm-embedded` toolchain
+  - `STM32_Programmer_CLI` added to PATH. This is included in the installation of the `STM32 Cube Programmer`, you just need to add it to the PATH.
 
-1. **Cloning**
-   - You can either download the code from GitHub directly or clone the repo. How you do this is up to you and your goals. The **recommended** usage is to clone the repo directly in STM32CUBEIDE (or your IDE of choice) using plugins like [Egit](https://projects.eclipse.org/projects/technology.egit) for Eclipse based IDEs.
-2. **Programming**
-   - For programming, if using the STM32CUBEIDE, after importing the code, you can use the builtin program functionality. On most STM32 development boards, you also have a debugger available. To use the debugger, just use the Debug feature of the IDE. This functionality is dependent on your IDE choice. If your IDE does not specifically implement programming, then you must install all necessary software required (there are many resources that cover this topic). **Please Note**: ensure the linkerscript defines all necessary variables as specified in `DESIGN.md` (if you aren't using the default linkerscript).
+### Integration Steps
+
+1. Copy all source files (`Src/*.c`) and header files (`Inc/*.h`) from this repository into your own directory.  
+   Keep them alongside your application source file (which defines `int main()`).
+
+2. Copy the provided `Makefile`, `startup_stm32f411vetx.s`, and `STM32F411VETX_FLASH.ld` into the same directory.
+
+3. **Build:** This generates build/main.elf and build/main.bin. <br /> <br />
+   In the same directory, run:
+
+   ```bash
+   make
+   ```
+
+4. **Flash your board:** (invokes `STM32_Programmer_CLI -c port=SWD -w build/main.elf -rst`) <br /> <br />
+   In the same directory, run:
+
+   ```bash
+   make flash
+   ```
+
+   If the output indicates successful programming, SRTOS and your application are now running on the target.
+
+### Alternative - STM32CUBEIDE
+
+You can also build and flash SRTOS directly inside STM32CubeIDE (refer to STM32CUBEIDE documentation for more information):
+
+1. Create a new STM32 project.
+2. Copy the SRTOS source and header files into your project.
+3. Replace the autogenerated main.c with your own.
+4. Use "Run" to build and flash.
+
+Ensure the linker script and startup assembly file define the correct memory regions for your MCU.
 
 ## Guides and Design
 
@@ -45,4 +81,10 @@ _This section is constantly changing as new features are being added._
 
 ## Contributing
 
-Contributions are greatly appreciated and highly recommended. If you have added a feature, port, or bug fix, please create a pull-request. Ensure the code you have written conforms to all rules in `STYLE.md` before creating a request. Please read `DESIGN.md` before altering code to ensure you have a solid grasp on the system's behavior.
+Contributions are encouraged. Before opening a pull request:
+
+1. Follow the coding style in `STYLE.md`.
+2. Review the architecture description in `DESIGN.md`.
+3. Build with default compiler flags and ensure zero warnings.
+
+Bug fixes, new ports, and documentation improvements are especially welcome.
