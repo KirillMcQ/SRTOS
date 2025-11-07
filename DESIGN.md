@@ -1,6 +1,6 @@
 # Design
 
-SRTOS is designed with safety and ease-of-learning in mind. The goal of the project is not only be a good introductory RTOS, but also be memory-safe and reliable. This file will give information on the scheduler design and behavior, as well as reasons behind the implementation.
+SRTOS is designed with safety and ease-of-learning in mind. The goal of the project is not only to be an introductory RTOS, but also be memory-safe and reliable. This file will give information on the scheduler design and behavior, as well as reasons behind the implementation.
 
 ## Useful Terminology
 
@@ -19,21 +19,21 @@ As an example, imagine 2 tasks `task1` and `task2`, with the priorities 1 and 2,
 void
 task1 ()
 {
-while (1)
-  {
-  	makeLedBlink ();
-  	taskDelay (1000);
-  }
+  while (1)
+    {
+      makeLedBlink ();
+      taskDelay (1000);
+    }
 }
 
 void
 task2 ()
 {
-while (1)
-  {
-  	makeAnotherLedBlink ();
-  	taskDelay (1000);
-  }
+  while (1)
+    {
+      makeAnotherLedBlink ();
+      taskDelay (1000);
+    }
 }
 ```
 
@@ -43,8 +43,8 @@ If two or more tasks of equal priority are ready to execute, the scheduler will 
 
 ## Scheduler Safety
 
-Stack overflow detection is implemented and non-optional. Before a task is switched out, a check is made to ensure two canary values at the lower bound of the task's stack are not overwritten. If they are, the `handleStackOverflow ()` function is called. This program must not exit, unless the user tries to implement system recovery. `handleStackOverflow ()` is weakly defined in `task.c`, so any other implementation that is non-weakly defined will be used. The function `getCurTaskWordsAvailable ()` will return the minimum number of words still available on a task's stack. This is useful for tasks when determining how much space is left on a task's stack, which can aid in repsonding to potential stack overflows before they happen.
+Stack overflow detection is implemented and non-optional. Before a task is switched out, a check is made to ensure two canary values at the lower bound of the task's stack are not overwritten. If they are, the `handleStackOverflow ()` function is called. This program must not exit, unless the user tries to implement system recovery. `handleStackOverflow ()` is weakly defined in `task.c`, so any other implementation that is non-weakly defined will be used. The function `getCurTaskWordsAvailable ()` will return the minimum number of words still available on a task's stack. This is useful for tasks when determining how much space is left on a task's stack, which can aid in responding to potential stack overflows before they happen.
 
 A default hardfault handler is provided in `fault.c`. Other handlers may be provided, but they must be naked, or in other words, the compiler **must not** add a prologue or epilogue to the function. If it were to add either of these, the stack pointer would no longer point to the exception frame that gives key information into why the system faulted. Custom handler functions must call `systemGet_Fault_SP ()`, and `systemHandle_Fault ()` right after. `systemHandle_Fault ()` is the function where you can handle the fault. Recovery options are slim in this situation. The best thing you can do is write to non-volatile memory and go into an infinite loop. This is the default behavior of the STM32F411E-DISCOVERY implementation of SRTOS.
 
-The user **must** define all data needed for tasks. You must define the task's stack, TCB, and TaskNode. The stack is the section of memory that the task will use to store all runtime information. For more information, look into stacks. You can configure `STACK_SIZE` in `kernel_config.h`, which is the size of the user stack in words (`uint32_t`). You can calculate the size of the stack in bytes my multiplying `STACK_SIZE` by 4: `stackSizeInBytes = STACK_SIZE * 4`. You can experiment with values, or stick with the default value, but you should try to tailor the value to your tasks, to conserve memory. The TCB is the structure that contains all information about the task. The TaskNode is a node in a linked list that contains the task's TCB and its `next` pointer. You don't need to initialize these, just pass in the memory address. Please refer to `GUIDES.md` for getting started guides and information on how to create tasks. The documentation also contains detailed descriptions of everything you need to know.
+The user **must** define all data needed for tasks. You must define the task's stack, TCB, and TaskNode. The stack is the section of memory that the task will use to store all runtime information. For more information, look into stacks. You can configure `STACK_SIZE` in `kernel_config.h`, which is the size of the user stack in words (`uint32_t`). You can calculate the size of the stack in bytes by multiplying `STACK_SIZE` by 4: `stackSizeInBytes = STACK_SIZE * 4`. You can experiment with values, or stick with the default value, but you should try to tailor the value to your tasks, to conserve memory. The TCB is the structure that contains all information about the task. The TaskNode is a node in a linked list that contains the task's TCB and its `next` pointer. You don't need to initialize these, just pass in the memory address. Please refer to `GUIDES.md` for getting started guides and information on how to create tasks. The documentation also contains detailed descriptions of everything you need to know.

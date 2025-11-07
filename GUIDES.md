@@ -2,16 +2,14 @@
 
 ## Prerequisites
 
-- SRTOS is cloned and ready to be uploaded to your board. For more information, check `README.md`.
+- All SRTOS source files (`.c` and `.h` files) have been moved to a directory of your choice. Refer to `Installation & Usage` in `README.md` for more.
 - You have read `DESIGN.md` and understand the basic operating principles of SRTOS.
 
 ## Getting Started
 
-SRTOS runs from any file that contains `int main()`, but preferably should be defined in a file called `main.c` to maintain good practice and readability.
+SRTOS runs from any file that contains `int main()`, but preferably should be defined in a file called `main.c`.
 
-The first step in any RTOS program is to define your task functions and their relavent memory buffers/structs. Task functions should **never** return, and should always implement their functionality inside an infinite loop. Here is an example task taken from the LED blink example (written for STM32F411E):
-
-Your main file must include `task.h` and `config.h`. _This will be updated as SRTOS changes._
+The first step in any RTOS program is to define task functions and their relevent memory buffers/structures. Task functions should **never** return, and should always implement their functionality inside an infinite loop. Your main file must include `task.h` and `config.h`. _This will be updated as SRTOS changes._ Here is an example task taken from the LED blink example (written for STM32F411E-DISCOVERY board):
 
 ```
 #include "config.h"
@@ -32,14 +30,16 @@ task1_blueLED ()
 }
 ```
 
-This part imports the necessary header files. System-defined imports like `stdint.h` are included in `config.h`, so the user does not need to worry about including these.
+## Explanations:
+
+This part imports the necessary header files. System-defined imports like `stdint.h` are included in `config.h`.
 
 ```
 #include "config.h"
 #include "task.h"
 ```
 
-This part defines the memory needed for the task. Every task has 3 statically-defined components: the stack, TCB, and TaskNode. These are explained in `DESIGN.md`.
+This defines the memory needed for the task. Every task has 3 statically-defined components: the stack, TCB, and TaskNode. These are explained in `DESIGN.md`.
 
 ```
 uint32_t task1Stack[STACK_SIZE];
@@ -47,7 +47,7 @@ TCB task1TCB;
 TaskNode task1Node;
 ```
 
-This is the actual task definition. It doesn't _need_ to be marked static, but it is good practice as it is only used in one file. The task uses an infinite loop to complete its operations then delay for 1 second. With `taskDelay ()`, you specify the delay in ms. Tasks don't need to delay, but that is a choice the user must make. This is the basic way to create a task function. Now, you must create the task and start the scheduler.
+This is the actual task definition. It doesn't _need_ to be marked static, but it is good practice as it is only used in one file. This specific task uses an infinite loop to complete its operations then delay for 1 second. With `taskDelay ()`, you specify the delay in ms. Tasks don't need to delay, depending on the user's needs. This is the basic way to create a task function. Now, you must create the task and start the scheduler.
 
 ```
 static void
