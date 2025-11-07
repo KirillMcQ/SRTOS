@@ -6,10 +6,14 @@ SRTOS is a simple preemptive Real-Time Operating System (RTOS) specifically deve
 
 ## Targets
 
-Currently, SRTOS is written for the STM32F411E-DISCOVERY board only. A portable version of SRTOS is being developed, and all supported boards will be listed in this section as they are updated. Please refer to this list for all portability information.
+Currently, SRTOS is written for the ARM-Cortex M4/M4F processor. Examples will be written for different STM32 boards, but as of now, the STM32F411E-DISCOVERY board is the only board with an example, although it is very simple to write your own SRTOS program for another ARM-CortexM4/M4F board. A portable version of SRTOS is being developed, and all supported boards will be listed in this section as they are updated. Please refer to this list for all portability information.
 
-- **STM32F411E-DISCOVERY**
-  - Fully Supported
+- **Boards**
+	- **STM32F411E-DISCOVERY**
+  		- Fully Supported
+- **Processors**
+	- **ARM-Cortex M4/M4F**
+		- Fully supported
 
 ## Compilation
 
