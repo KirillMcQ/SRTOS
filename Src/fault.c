@@ -1,3 +1,11 @@
+/**
+ * @file    fault.c
+ * @brief   System fault handling functions for SRTOS.
+ * @details
+ * Implements handlers for system faults, capturing
+ * the fault stack pointer and calling `systemHandle_Fault()`.
+ */
+
 #include "fault.h"
 
 __attribute ((naked)) uint32_t *
@@ -9,10 +17,6 @@ systemGet_Fault_SP (__attribute__ ((unused)) uint32_t faultLR)
                   "MRSNE r0, psp\n"
                   "BX lr\n");
 }
-
-/*
- * Gets stack frame and pushes to non-volatile flash memory.
- * */
 
 void
 systemHandle_Fault (uint32_t *faultSP)

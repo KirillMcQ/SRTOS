@@ -1,3 +1,10 @@
+/**
+ * @file    task.h
+ * @brief   Task management and scheduler API for SRTOS.
+ * @details
+ * Provides user-level functions to manage tasks.
+ */
+
 #include "task.h"
 
 volatile uint32_t msTicks = 0;
@@ -22,6 +29,19 @@ static TaskNode *createIdleTask ();
 static void idleTask ();
 static void prvCheckCurTaskForStackOverflow ();
 
+/**
+ * @brief Initializes a task's stack frame.
+ * @details This will populate the stack with a dummy xPSR and LR value to allow the task to begin execution.
+ * These values will be overwritten once the task starts executing. Also, this will fill the bottom of the stack with canary values
+ * so that stack overflows can be detected. The stack is also populated with usage watermarks.
+ * 
+ * @param taskStack The array created by the user
+ * @param taskFunc The address of the task function
+ * 
+ * @warning This function should not be called by user code.
+ * 
+ * @return Returns a pointer to the top of the stack.
+ */
 uint32_t *
 initTaskStackFrame (uint32_t taskStack[], void (*taskFunc) (void))
 {
@@ -85,6 +105,12 @@ createTask (uint32_t taskStack[], void (*taskFunc) (void),
   return resStatus;
 }
 
+/**
+ * @brief This interrupt handler will be called every 1 ms, checking if any tasks need to be unblocked or blocked,
+ * and whether a context switch is needed.
+ * 
+ * @warning This function should not be called from user code.
+ */
 void
 SysTick_Handler ()
 {
@@ -129,6 +155,13 @@ SysTick_Handler ()
     }
 }
 
+/**
+ * @brief This interrupt will be pended when a context switch is needed.
+ * 
+ * @note This interrupt will run only after all other pending interupts have finished executing.
+ * @note prvNextTask will be set when this interrupt is pended.
+ * @warning This function should never be called by user code.
+ */
 void
 PendSV_Handler ()
 {
@@ -160,6 +193,12 @@ PendSV_Handler ()
                   "bx lr\n");
 }
 
+/**
+ * @brief This interrupt will be executed when the scheduler is started.
+ * 
+ * @note This is where the first task is started.
+ * @warning This function should not be called from user code.
+ */
 void
 SVC_Handler ()
 {
@@ -183,6 +222,11 @@ startScheduler ()
   __asm volatile ("svc #0");
 }
 
+/**
+ * @brief This function will be called when a context-switch is needed.
+ * 
+ * @warning This function should not be called from user code.
+ */
 void
 setPendSVPending ()
 {
@@ -243,6 +287,15 @@ taskDelay (uint32_t ticksToDelay)
   setPendSVPending ();
 }
 
+/**
+ * @brief Add a task to the ready tasks list.
+ * 
+ * @param task The task's TaskNode to move to the ready list.
+ * 
+ * @return Returns STATUS_SUCCESS if the task was successfully added to the ready list, and STATUS_FAILURE if it was failed to be added.
+ * 
+ * @warning This function should not be called from user code.
+ */
 static STATUS
 prvAddTaskNodeToReadyList (TaskNode *task)
 {
@@ -275,6 +328,13 @@ prvAddTaskNodeToReadyList (TaskNode *task)
   return STATUS_SUCCESS;
 }
 
+/**
+ * @brief This function will get the highest priority task ready to execute.
+ * 
+ * @return Returns the TaskNode of the highest priority task ready to execute.
+ * 
+ * @warning This function should not be called by user code.
+ */
 static TaskNode *
 prvGetHighestTaskReadyToExecute ()
 {
@@ -292,7 +352,13 @@ prvGetHighestTaskReadyToExecute ()
   return prvIdleTask;
 }
 
-/* Maybe make this return a STATUS? */
+/**
+ * @brief This function will add a task to the blocked list.
+ * 
+ * @param task The TaskNode of the task to be added to the blocked list
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 prvAddTaskToBlockedList (TaskNode *task)
 {
@@ -314,6 +380,13 @@ prvAddTaskToBlockedList (TaskNode *task)
   cur->next = task;
 }
 
+/**
+ * @brief This function will unblock every task that is delayed and ready to be unblocked.
+ * 
+ * @note This function is called at the frequency of 1ms (the frequency of SysTick).
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 prvUnblockDelayedTasksReadyToUnblock ()
 {
@@ -359,6 +432,13 @@ prvUnblockDelayedTasksReadyToUnblock ()
     }
 }
 
+/**
+ * @brief This function will create the idle task.
+ * 
+ * @return This function returns the pointer to the IdleTask's TaskNode
+ * 
+ * @warning This function should not be called by user code.
+ */
 static TaskNode *
 createIdleTask ()
 {
@@ -373,6 +453,11 @@ createIdleTask ()
   return idleTaskNodePtr;
 }
 
+/**
+ * @brief This function is the Idle Task. It will run when no other task is ready to run.
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 idleTask ()
 {
@@ -382,6 +467,13 @@ idleTask ()
     }
 }
 
+/**
+ * @brief This task will check the current running task for a stack overflow.
+ * 
+ * @note This function will be called when the current task is ready to be switched out.
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 prvCheckCurTaskForStackOverflow ()
 {

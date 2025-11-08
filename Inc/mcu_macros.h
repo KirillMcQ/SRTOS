@@ -1,3 +1,11 @@
+/**
+ * @file    mcu_macros.h
+ * @brief   Memory-mapped register addresses and hardware access macros for the STM32F411VET6.
+ * @details
+ * This header defines key base addresses and register pointers used by SRTOS.
+ * 
+ * @warning Only low-level system components and startup code should include this file.
+ */
 #ifndef MCU_MACROS_H_
 #define MCU_MACROS_H_
 

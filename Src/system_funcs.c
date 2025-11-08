@@ -1,5 +1,17 @@
+/**
+ * @file    system_funcs.c
+ * @brief   System-level control functions for SRTOS.
+ * @details
+ * Implements low-level system functions used by the kernel.
+ */
+
 #include "system_funcs.h"
 
+/**
+ * @brief Enter a critical section by disabling all interrupts.
+ * 
+ * @warning This function should not be called by user code.
+ */
 void
 systemENTER_CRITICAL ()
 {
@@ -11,6 +23,11 @@ systemENTER_CRITICAL ()
                   "ISB\n");
 }
 
+/**
+ * @brief Exit a critical section by enabling all interrupts.
+ * 
+ * @warning This function should not be called by user code.
+ */
 void
 systemEXIT_CRITICAL ()
 {

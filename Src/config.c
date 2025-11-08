@@ -1,4 +1,19 @@
+/**
+ * @file    config.c
+ * @brief   System configuration functions for SRTOS.
+ * @details
+ * Provides hardware and peripheral initialization functions called
+ * before the scheduler starts. Users may extend this file to include
+ * custom configuration code that can be called from `configureAll()`.
+ */
+
 #include "config.h"
+
+/**
+ * @brief Configures system clock to use HSE at 8 MhZ
+ * 
+ * @warning This function should not be called by user code.
+ */
 
 static void
 configureClock ()
@@ -14,6 +29,11 @@ configureClock ()
     ;
 }
 
+/**
+ * @brief Configures blue LED on PD15 as output
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 configureBlueLED ()
 {
@@ -25,6 +45,11 @@ configureBlueLED ()
   GPIOD_MODER |= (1 << 30);
 }
 
+/**
+ * @brief Configures green LED on PD12 as output
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 configureGreenLED ()
 {
@@ -35,6 +60,11 @@ configureGreenLED ()
   GPIOD_MODER |= (1 << 24);
 }
 
+/**
+ * @brief Configures orange LED on PD13 as output
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 configureOrangeLED ()
 {
@@ -44,6 +74,11 @@ configureOrangeLED ()
   GPIOD_MODER |= (1 << 26);
 }
 
+/**
+ * @brief Configure SysTick interrupt at a 1ms interval.
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 configureSystickInterrupts ()
 {
@@ -55,6 +90,11 @@ configureSystickInterrupts ()
   SYSTICK_CSR |= (1 << 0);      /* Enable Timer */
 }
 
+/**
+ * @brief Configure interrupts priorities to ensure PendSV is the lowest and SysTick is right above.
+ * 
+ * @warning This function should not be called by user code.
+ */
 static void
 configureInterruptPriorities ()
 {
