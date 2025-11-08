@@ -2,8 +2,7 @@
 
 ## Overview
 
-**SRTOS** is a small preemptive real-time operating system for STM32 processors.  
-It is designed for **safety, clarity, and learning**, providing a readable codebase for embedded developers.
+**SRTOS** is a small preemptive real-time operating system. It is designed for **safety, clarity, and learning**, providing a readable codebase for embedded developers.
 
 All code is:
 
